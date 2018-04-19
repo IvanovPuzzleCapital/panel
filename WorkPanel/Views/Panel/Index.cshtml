@@ -1,0 +1,111 @@
+﻿@using WorkPanel.Models.PanelViewModels
+@model List<Investor>
+@{
+    ViewData["Title"] = "Panel Page";
+    var id = 0;
+}
+
+<div class="index_body">
+    <input id="invId" hidden value="0"/>
+    <div class="container" style="padding: 30px; background: whitesmoke;">
+        <div class="row">
+            <div class="col-md-3">
+                <div>
+                    <h1>$5 000 000 000</h1>
+                </div>
+                <div>
+                    <h3>Total Invested</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <h1>1 000 000</h1>
+                </div>
+                <div>
+                    <h3>Total Shares</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <h1>$5 000 000</h1>
+                </div>
+                <div>
+                    <h3>Profit</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <h1>$500</h1>
+                </div>
+                <div>
+                    <h3>Current Share Value</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div>
+        @if (Model.Any())
+        {
+            <table class="table hoverTable">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Amount Invested</th>
+                    <th>Shares Received</th>
+                    <th>Price per share</th>
+                    <th style="text-align: end;">Return of Investment</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-toggle="modal" data-target="#modalCreate">
+                        <td>
+                            @if (item.Status == Status.Active)
+                            {
+                                <span class="dot-active"></span>
+                            }
+                            else
+                            {
+                                <span class="dot-inactive"></span>
+                            }
+                        </td>
+                        <td>
+                            <a id="createEditCustomerModal" data-toggle="modal" asp-action="Info" asp-route-id= "@item.Id" data-target="#modal-action-info">
+                               @item.Name
+                            </a>
+                            
+                        </td>
+                        <td>@item.Date.ToShortDateString()</td>
+                        <td>$@item.AmountInvested</td>
+                        <td>@item.SharesReceived</td>
+                        <td>$@(item.AmountInvested / item.SharesReceived)</td>
+                        <td style="text-align: end;">50%</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">    
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                @await Html.PartialAsync("AddInvestor")
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-action-info" class="modal fade" role="dialog">
+    <div class="modal-dialog">    
+        <div class="modal-content">          
+        </div>
+    </div>
+</div>

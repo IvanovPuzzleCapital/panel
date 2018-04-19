@@ -1,0 +1,52 @@
+﻿@model WorkPanel.Models.PanelViewModels.InvestorViewModel
+<button type="button" class="close" style="margin: 10px;" data-dismiss="modal">&times;</button>
+<div class="modal-body">
+    
+    @Html.AntiForgeryToken()
+    @if (Model != null)
+    {
+        <div>
+            <h2 style="text-align: center;">@Model.Name</h2>
+            @if (Model.Status == Status.Active)
+            {
+                <h4 style="text-align: center;color: darkgray;">Active Investor</h4>
+            }
+            else
+            {
+                <h4 style="text-align: center;color: darkgray;">Inactive Investor</h4>
+            }
+        </div>
+        <hr/>
+        <div>
+            <h5 style="text-align: center; font-weight: bold">@Model.Agreement</h5>
+        </div>
+        <hr/>
+        <div id="buttons" class="form-group" style="text-align: center;">
+            @if (Model.Status == Status.Active)
+            {
+                <a class="btn btn-default" style="color: lightgray; border-radius: 15px;" asp-action="DeactivateInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Deactivate">Deactivate</a>
+            }
+            else
+            {
+                <a class="btn btn-default" style="color: lightgray; border-radius: 15px;" asp-action="ActivateInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Activate">Activate</a>
+            }
+            <input type="submit" value="Remove" class="btn btn-default" style="color: white; border-radius: 15px; background: red; border-color: black;" onclick="switchDivs()"/>
+        </div>
+        <div id="confirm" class="form-group" style="display: none">        
+            <div>
+                <h3 style="text-align: center;">Are you sure you want to remove the Investor?</h3>
+            </div>
+            <hr/>
+            <div class="form-group" style="text-align: center;">
+                <input type="submit" value="Return" class="btn btn-default" onclick="switchDivs()"/>
+                <a class="btn btn-default" asp-action="RemoveInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Activate">Remove</a>
+            </div>
+        </div>
+    }
+</div>
+<script>
+    function switchDivs() {
+        $("#confirm").toggle();
+        $("#buttons").toggle();
+    }
+</script>

@@ -1,0 +1,38 @@
+﻿<div style="text-align: center;">
+    <h4>Add Investor</h4>
+</div>
+<hr />
+<div id="app" class="row">
+    <div class="col-md-9" style="float: none; width: 50%; margin: 0 auto;">
+        @*<form>*@
+            <div class="form-group">                
+                <input class="form-control" type="text" placeholder="Name" v-model="name"/>
+                <span class="text-danger" v-if="errors.includes('name')">Field is empty</span>
+            </div>
+            <div class="form-group">                
+                <input class="form-control" type="date" placeholder="Date (DD/MM/YYYY)" v-model="date"/>
+                <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
+            </div>
+            <div class="form-group">                
+                <input class="form-control" type="text" placeholder="Agreement" v-model="agreement"/>
+                <span class="text-danger" v-if="errors.includes('agreement')">Field is empty</span>
+            </div>
+            <div class="form-group">                
+                <input class="form-control" type="number" placeholder="Amount Invested" v-model="amount"/>
+                <span class="text-danger" v-if="errors.includes('amount')">Field is empty</span>
+            </div>
+            <div class="form-group">                
+                <input class="form-control" type="number" placeholder="Shares Received" v-model="shares"/>
+                <span class="text-danger" v-if="errors.includes('shares')">Field is empty</span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add" class="btn btn-default" v-on:click="add" />
+            </div>
+        @*</form>*@
+    </div>
+</div>
+
+@section Scripts {
+   
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
