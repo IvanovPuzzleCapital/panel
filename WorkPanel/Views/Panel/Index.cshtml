@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-md-3">
                 <div>
-                    <h1>$@Model.TotalInvested.ToString("N0")</h1>
+                    <h1>$<span style="font-weight: bold">@Model.TotalInvested.ToString("N0")</span></h1>
                 </div>
                 <div>
                     <h3>Total Invested</h3>
@@ -78,7 +78,7 @@
                             
                         </td>
                         <td>@item.Date.ToShortDateString()</td>
-                        <td>$@item.AmountInvested</td>
+                        <td>$@item.AmountInvested.ToString("N0")</td>
                         <td>@item.SharesReceived</td>
                         <td>$@(item.AmountInvested / item.SharesReceived)</td>
                         <td style="text-align: end;">50%</td>
@@ -90,7 +90,7 @@
     </div>
 </div>
 
-<div id="myModal" class="modal fade" role="dialog">
+<div id="add-modal" class="modal fade" role="dialog">
     <div class="modal-dialog">    
         <div class="modal-content">
             <div class="modal-body">

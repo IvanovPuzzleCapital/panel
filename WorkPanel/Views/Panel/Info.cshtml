@@ -21,18 +21,17 @@
             <div>
                 <h5 style="text-align: center; font-weight: bold">@Model.Agreement</h5>
             </div>            
-            <div class="form-group" style="text-align: center;">
+            <div class="form-group" style="text-align: center; margin-top: 20px;">
                 @if (Model.Status == Status.Active)
                 {
-                    <a class="btn btn-default" style="color: lightgray; border-radius: 15px; margin-right: 25px; width: 100px;" asp-action="DeactivateInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Deactivate">Deactivate</a>
+                    <a class="btn btn-default" style="color: lightgray; border-radius: 15px; width: 100px;" asp-action="DeactivateInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Deactivate">Deactivate</a>
                 }
                 else
                 {
-                    <a class="btn btn-default" style="color: lightgray; border-radius: 15px; margin-right: 25px; width: 100px;" asp-action="ActivateInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Activate">Activate</a>
-                }  
-            
-
-                <input type="submit" value="Remove" class="btn btn-default" style="color: white; border-radius: 15px; background: #F94F4A; width: 100px;" onclick="switchDivs()"/>
+                    @*<a class="btn btn-default" style="color: lightgray; border-radius: 15px; margin-right: 25px; width: 100px;" asp-action="ActivateInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Activate">Activate</a>*@
+                    <input type="submit" value="Remove" class="btn btn-default" style="color: white; border-radius: 15px; background: #F94F4A; width: 100px;" onclick="switchDivs()"/>
+                }            
+                
             </div>
         </div>
         <div id="confirm" class="form-group" style="display: none">        

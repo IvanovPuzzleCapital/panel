@@ -13,7 +13,7 @@ namespace WorkPanel.Controllers
                 return Redirect("Panel");
             }
 
-            return View();
+            return Redirect("Account/Login");
         }
 
         public IActionResult Error()
