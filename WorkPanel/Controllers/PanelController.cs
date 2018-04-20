@@ -25,7 +25,14 @@ namespace WorkPanel.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await dbContext.Investors.OrderBy(s=>s.Status).ThenByDescending(s=>s.Date).ToListAsync());
+            var investors = await dbContext.Investors.OrderBy(s => s.Status).ThenByDescending(s => s.Date).ToListAsync();
+            var viewModel = new PanelViewModel
+            {
+                Investors = investors,
+                TotalInvested = investors.Sum(investor => investor.SharesReceived)
+            };
+
+            return View(viewModel);
         }
 
 

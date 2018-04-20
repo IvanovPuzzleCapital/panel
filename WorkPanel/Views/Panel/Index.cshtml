@@ -1,17 +1,15 @@
 ﻿@using WorkPanel.Models.PanelViewModels
-@model List<Investor>
+@model PanelViewModel
 @{
-    ViewData["Title"] = "Panel Page";
-    var id = 0;
+    ViewData["Title"] = "Panel Page";    
 }
 
 <div class="index_body">
-    <input id="invId" hidden value="0"/>
-    <div class="container" style="padding: 30px; background: whitesmoke;">
+    <div style="padding: 30px; background: whitesmoke;">
         <div class="row">
             <div class="col-md-3">
                 <div>
-                    <h1>$5 000 000 000</h1>
+                    <h1>$@Model.TotalInvested.ToString("N0")</h1>
                 </div>
                 <div>
                     <h3>Total Invested</h3>
@@ -45,7 +43,7 @@
     </div>
     <br/>
     <div>
-        @if (Model.Any())
+        @if (Model.Investors.Any())
         {
             <table class="table hoverTable">
                 <thead>
@@ -60,9 +58,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.Investors)
                 {
-                    <tr data-toggle="modal" data-target="#modalCreate">
+                    <tr class="hovertr" data-toggle="modal" data-target="#modalCreate">
                         <td>
                             @if (item.Status == Status.Active)
                             {
@@ -104,7 +102,7 @@
 </div>
 
 <div id="modal-action-info" class="modal fade" role="dialog">
-    <div class="modal-dialog">    
+    <div class="modal-dialog" style="width: 400px;">    
         <div class="modal-content">          
         </div>
     </div>

@@ -148,6 +148,6 @@
     border-collapse: collapse;
 }
 
-.hoverTable tr:hover {
+.hoverTable .hovertr:hover {
      background-color: whitesmoke;
 }
