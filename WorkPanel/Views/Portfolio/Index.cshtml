@@ -1,0 +1,139 @@
+﻿@using System.Globalization
+@{
+    ViewData["Title"] = "Portfolio";    
+}
+
+<div class="index_body">
+    <div class="row" style="padding: 30px; background: whitesmoke; margin: 0px;">
+        <div class="col-xs-6">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="row" style="display: ruby">
+                        <h1 style="margin-left: -5px;">$<span style="font-weight: bold">@(8097386.ToString("n0", new CultureInfo("en-US")))</span></h1>
+                        <h3><span style="font-weight: bold; color: #2BBF5C">+5.02%</span></h3>
+                    </div>
+                    <div class="row" style="margin-top: -15px;">
+                        <h5>Net Asset Value</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="row">
+                        <h3><span style="font-weight: bold; color: #2BBF5C">31.83%</span></h3>
+                        <h5 style="margin-top: -5px;"><span>1W Change</span></h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <h3><span style="font-weight: bold; color: #2BBF5C">219.03%</span></h3>
+                        <h5 style="margin-top: -5px;"><span>1M Change</span></h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <h3><span style="font-weight: bold; color: #2BBF5C">527.62%</span></h3>
+                        <h5 style="margin-top: -5px;"><span>3M Change</span></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="row">
+                        <h3><span style="font-weight: bold; color: #2BBF5C">$1,291,450</span></h3>
+                        <h5 style="margin-top: -5px;"><span>Acquisition Cost</span></h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <h3><span style="font-weight: bold; color: #2BBF5C">$6,805,936</span></h3>
+                        <h5 style="margin-top: -5px;"><span>Profit/Loss</span></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <canvas id="myChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+    <br/>
+    <div>
+        <table class="table hover-table">
+            <thead>
+            <tr>
+                <th>Asset</th>
+                <th>Quantity</th>
+                <th>Price/Price change</th>
+                <th>Exposure</th>
+                <th>Profit/Loss</th>
+                <th style="text-align: end;">Weight, %</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="hover-tr">
+                <td><span style="font-weight: bold; font-size: large;">Bitcoin</span></td>
+                <td><span style="font-size: large;">10.098657</span> <span style="color: lightgray; font-size: large;">BTC</span></td>
+                <td><span style="color: red; font-size: large;">$13,874.40</span><span style="color: red; margin-left: 10px; font-size: small;">-13.76%</span></td>
+                <td><span style="font-size: large;">$140,231</span></td>
+                <td><span style="color: #2BBF5C; font-size: large;">$20,112.80</span><span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+13.76%</span></td>
+                <td style="text-align: end;"><span style="font-size: large;">3.28</span></td>
+            </tr>
+            <tr class="hover-tr">
+                <td><span style="font-weight: bold; font-size: large;">Bitcoin</span></td>
+                <td><span style="font-size: large;">10.098657</span> <span style="color: lightgray; font-size: large;">BTC</span></td>
+                <td><span style="color: red; font-size: large;">$13,874.40</span><span style="color: red; margin-left: 10px; font-size: small;">-13.76%</span></td>
+                <td><span style="font-size: large;">$140,231</span></td>
+                <td><span style="color: #2BBF5C; font-size: large;">$20,112.80</span><span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+13.76%</span></td>
+                <td style="text-align: end;"><span style="font-size: large;">3.28</span></td>
+            </tr>
+            <tr class="hover-tr">
+                <td><span style="font-weight: bold; font-size: large;">Bitcoin</span></td>
+                <td><span style="font-size: large;">10.098657</span> <span style="color: lightgray; font-size: large;">BTC</span></td>
+                <td><span style="color: red; font-size: large;">$13,874.40</span><span style="color: red; margin-left: 10px; font-size: small;">-13.76%</span></td>
+                <td><span style="font-size: large;">$140,231</span></td>
+                <td><span style="color: #2BBF5C; font-size: large;">$20,112.80</span><span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+13.76%</span></td>
+                <td style="text-align: end;"><span style="font-size: large;">3.28</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="add-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 400px;">    
+        <div class="modal-content">
+            <button type="button" class="close" style="margin: 10px;" data-dismiss="modal">&times;</button>
+            <div class="modal-body">
+                @await Html.PartialAsync("AddAsset")
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/chartjs/chart.js"></script>
+<script>
+    var ctx = $("#myChart");
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+            datasets: [{
+                label: 'Sample chart',
+                data: [12, 19, 3, 5, 2, 3, 6, 3, 8, 2, 2, 6, 14, 2, 6, 4, 5, 6, 2, 45, 7, 2],
+
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            responsive: true
+        }
+    });
+</script>

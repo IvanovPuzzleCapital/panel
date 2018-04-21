@@ -95,6 +95,8 @@
 
 .modal-body {
   margin: 20px 0;
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 .modal-default-button {
@@ -143,11 +145,11 @@
   vertical-align: middle;
 }
 
-.hoverTable {
+.hover-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.hoverTable .hovertr:hover {
+.hover-table .hover-tr:hover {
      background-color: whitesmoke;
 }

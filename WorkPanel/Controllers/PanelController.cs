@@ -29,12 +29,12 @@ namespace WorkPanel.Controllers
             var viewModel = new PanelViewModel
             {
                 Investors = investors,
-                TotalInvested = investors.Sum(investor => investor.AmountInvested)
+                TotalInvested = investors.Sum(investor => investor.AmountInvested) - investors.Sum(investor => investor.AmountReturned),
+                TotalShares = investors.Sum(investor => investor.SharesReceived) - investors.Sum(investor => investor.SharesBurned)
             };
 
             return View(viewModel);
         }
-
 
         [HttpPost]
         public ActionResult InsertInvestor(InvestorViewModel viewModel)
@@ -76,12 +76,15 @@ namespace WorkPanel.Controllers
             return PartialView("Info", model);
         }
 
-        public IActionResult DeactivateInvestor(int id)
+        public IActionResult DeactivateInvestor(InvestorViewModel model)
         {
-            var investor = dbContext.Investors.FirstOrDefault(p => p.Id == id);
+            var investor = dbContext.Investors.FirstOrDefault(p => p.Id == model.Id);
             if (investor != null)
             {
-                investor.Status = Status.Inactive;               
+                investor.Status = Status.Inactive;
+                investor.DeactivateDate = model.DeactivateDate;
+                investor.SharesBurned = investor.SharesReceived;
+                investor.AmountReturned = model.AmountReturned;
                 dbContext.SaveChanges();
             }
             return RedirectToAction("Index");

@@ -26,14 +26,13 @@ vueObj = new Vue({
                         AmountInvested: this.amount,
                         SharesReceived: this.shares
                     },
-                function (data) {
-                        this.disableButtons = false;
+                function (data) {                        
                         if (data.statusCode === 200) {
                             setTimeout(function() { window.location.href = "/Panel/Index" }, 500);
                         }
                     })
                 .fail(function(xhr, status, error) {
-                    //TODO обработать ошибку
+                    
                 });
         }
     }

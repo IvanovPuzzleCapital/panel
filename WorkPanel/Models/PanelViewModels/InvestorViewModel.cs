@@ -12,10 +12,16 @@ namespace WorkPanel.Models.PanelViewModels
 
         public DateTime Date { get; set; }
 
+        public DateTime DeactivateDate { get; set; }
+
         public string Agreement { get; set; }
 
         public double AmountInvested { get; set; }
 
+        public double AmountReturned { get; set; }
+
         public int SharesReceived { get; set; }
+
+        public int SharesBurned { get; set; }
     }
 }

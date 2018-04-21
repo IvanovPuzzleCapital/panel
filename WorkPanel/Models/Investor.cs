@@ -13,11 +13,17 @@ namespace WorkPanel.Models
 
         public DateTime Date { get; set; }
 
+        public DateTime DeactivateDate { get; set; }
+
         public string Agreement { get; set; }
 
         public double AmountInvested { get; set; }
 
+        public double AmountReturned{ get; set; }
+
         public int SharesReceived { get; set; }
+
+        public int SharesBurned { get; set; }
 
         public Investor()
         {
@@ -32,7 +38,9 @@ namespace WorkPanel.Models
             Date = viewModel.Date;
             Agreement = viewModel.Agreement;
             AmountInvested = viewModel.AmountInvested;
+            AmountReturned = 0;
             SharesReceived = viewModel.SharesReceived;
+            SharesBurned = 0;
         }
     }
 
