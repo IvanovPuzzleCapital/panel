@@ -35,14 +35,16 @@ namespace WorkPanel.Data
 
             if (!_context.Users.Any())
             {
-                //Create the default Admin account and apply the Administrator role
-                string userName = "videogamedonkey";
-                string password = "thankyoudarksouls";
-                var result = await _userManager.CreateAsync(new ApplicationUser { UserName = userName, Email = userName, EmailConfirmed = true }, password);
-                if (result.Succeeded)
+                for (int i = 0; i < 5; i++)
                 {
-                    var user = await _userManager.FindByEmailAsync(userName);
-                    await _userManager.AddToRoleAsync(user, "Administrator");
+                    string userName = "testuser" + (i + 1);
+                    string password = "Zaq123456789";
+                    var result = await _userManager.CreateAsync(new ApplicationUser { UserName = userName, Email = userName, EmailConfirmed = true }, password);
+                    if (result.Succeeded)
+                    {
+                        var user = await _userManager.FindByEmailAsync(userName);
+                        await _userManager.AddToRoleAsync(user, "Administrator");
+                    }
                 }
             }
         }
