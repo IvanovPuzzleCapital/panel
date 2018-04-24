@@ -19,7 +19,7 @@
             </div>
             <hr/>
             <div id="agreement-div">
-                <h5 style="text-align: center; font-weight: bold">@Model.Agreement</h5>
+                <h5 style="text-align: center; font-weight: bold; word-wrap: break-word; margin: 20px;">@Model.Agreement</h5>
             </div>            
             <div id="action-buttons" class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 0px;">
                 @if (Model.Status == Status.Active)
@@ -61,12 +61,12 @@
             </div>
         </div>
         <div id="confirm" class="form-group" style="display: none">        
-            <div>
+            <div style="margin: 10px;">
                 <h3 style="text-align: center;">Are you sure you want to remove the Investor?</h3>
             </div>
             <hr/>
-            <div class="form-group" style="text-align: center;">
-                <input type="submit" value="Return" class="btn btn-default" onclick="switchDivs()" style="color: white; margin-right: 25px; background: lightblue; width: 100px; border-radius: 15px;"/>
+            <div class="form-group" style="text-align: center; padding-top: 20px;">
+                <input type="submit" value="Return" class="btn btn-default" onclick="removeConfirm()" style="color: white; margin-right: 25px; background: lightblue; width: 100px; border-radius: 15px;"/>
                 <a class="btn btn-default" asp-action="RemoveInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Activate" style="color: white; border-radius: 15px; width: 100px; background: #F94F4A;">Remove</a>
             </div>
         </div>
