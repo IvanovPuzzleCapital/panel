@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 using WorkPanel.Models.PanelViewModels;
 
 namespace WorkPanel.Models
@@ -14,6 +17,16 @@ namespace WorkPanel.Models
         public DateTime Date { get; set; }
 
         public DateTime DeactivateDate { get; set; }
+
+        public string JsonDateList { get; set; }
+
+        public string JsonDeactivateDateList { get; set; }
+
+        [NotMapped]
+        public List<DateTime> HistoricalDateList { get; set; }
+
+        [NotMapped]
+        public List<DateTime> HistoricalDeactivateDateList { get; set; }
 
         public string Agreement { get; set; }
 
@@ -36,6 +49,10 @@ namespace WorkPanel.Models
             Status = viewModel.Status;
             Name = viewModel.Name;
             Date = viewModel.Date;
+            HistoricalDateList = new List<DateTime> {Date};
+            HistoricalDeactivateDateList = new List<DateTime>();
+            JsonDateList = JsonConvert.SerializeObject(HistoricalDateList);
+            JsonDeactivateDateList = JsonConvert.SerializeObject(HistoricalDeactivateDateList);
             Agreement = viewModel.Agreement;
             AmountInvested = viewModel.AmountInvested;
             AmountReturned = 0;

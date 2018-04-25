@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using WorkPanel.Data;
 using WorkPanel.DataExchange.Responses;
 using WorkPanel.Models;
@@ -70,6 +73,8 @@ namespace WorkPanel.Controllers
                 model.Name = investor.Name;
                 model.Date = investor.Date;
                 model.DeactivateDate = investor.DeactivateDate;
+                model.HistoricalDateList = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDateList);
+                model.HistoricalDeactivateDateList = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDeactivateDateList);                
                 model.Agreement = investor.Agreement;
                 model.AmountInvested = investor.AmountInvested;
                 model.SharesReceived = investor.SharesReceived;
@@ -77,22 +82,33 @@ namespace WorkPanel.Controllers
             return PartialView("Info", model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult DeactivateInvestor(InvestorViewModel model)
         {
-            var investor = dbContext.Investors.FirstOrDefault(p => p.Id == model.Id);
-            if (investor != null)
+            if (ModelState.IsValid)
             {
-                investor.Status = Status.Inactive;
-                investor.DeactivateDate = model.DeactivateDate;
-                investor.SharesBurned = investor.SharesReceived;
-                investor.AmountReturned = model.AmountReturned;
-                investor.AmountInvested = 0;
-                investor.SharesReceived = 0;
-                dbContext.SaveChanges();
+                var investor = dbContext.Investors.FirstOrDefault(p => p.Id == model.Id);
+                if (investor != null)
+                {
+                    investor.Status = Status.Inactive;
+                    investor.DeactivateDate = model.DeactivateDate;
+                    investor.SharesBurned = investor.SharesReceived;
+                    investor.AmountReturned = model.AmountReturned;
+                    investor.AmountInvested = 0;
+                    investor.SharesReceived = 0;
+                    var list = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDeactivateDateList);
+                    list.Add(model.DeactivateDate);
+                    investor.JsonDeactivateDateList = JsonConvert.SerializeObject(list);
+                    dbContext.SaveChanges();
+                }
+                
             }
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult ActivateInvestor(InvestorViewModel model)
         {
             var investor = dbContext.Investors.FirstOrDefault(p => p.Id == model.Id);
@@ -104,7 +120,10 @@ namespace WorkPanel.Controllers
                 investor.SharesBurned = 0;
                 investor.AmountReturned = 0;
                 investor.AmountInvested = model.AmountInvested;
-                investor.SharesReceived = model.SharesReceived;
+                investor.SharesReceived = model.SharesReceived;               
+                var list = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDateList);
+                list.Add(model.Date);
+                investor.JsonDateList = JsonConvert.SerializeObject(list);
                 dbContext.SaveChanges();
             }
             return RedirectToAction("Index");
@@ -120,5 +139,29 @@ namespace WorkPanel.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        #region Helpers
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(PanelController.Index), "Panel");
+            }
+        }
+
+        #endregion
     }
 }

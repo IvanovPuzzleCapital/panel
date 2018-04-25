@@ -18,12 +18,27 @@
                 }
             </div>
             <hr/>
-            <div id="dates">
-                <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">Activation Date - @Model.Date.ToShortDateString()</h5>
-                @if (Model.Status == Status.Inactive)
-                {
-                    <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">Deactivation Date - @Model.DeactivateDate.ToShortDateString()</h5>
-                }                
+            <div id="dates" class="row">
+                <div class="col-xs-6">
+                    @if (Model.HistoricalDateList.Count > 0)
+                    {
+                        <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">Activation Date</h5>
+                        foreach (var item in Model.HistoricalDateList)
+                        {
+                            <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">@item.ToShortDateString()</h5>
+                        }
+                    }
+                </div>
+                <div class="col-xs-6">
+                    @if (Model.HistoricalDeactivateDateList.Count > 0)
+                    {
+                        <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">Deactivation Date</h5>
+                        foreach (var item in Model.HistoricalDeactivateDateList)
+                        {
+                            <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">@item.ToShortDateString()</h5>
+                        }
+                    }
+                </div>
             </div>
             <div id="agreement-div">
                 <h5 style="text-align: center; font-weight: bold; word-wrap: break-word; margin: 20px;">@Model.Agreement</h5>
@@ -39,15 +54,15 @@
                     <input type="submit" value="Remove" class="btn btn-default" style="color: white; border-radius: 15px; background: #F94F4A; width: 100px;" onclick="removeConfirm()"/>
                 }                          
             </div>
-            <div id="deactivate" class="row" style="display: none">
+             <div id="deactivate" class="row" style="display: none">
                 <div class="col-md-9" style="float: none; margin: 0 auto;">
-                    <form asp-route-returnUrl="Panel" asp-action="DeactivateInvestor" method="post">
+                    <form asp-route-returnUrl="Panel" asp-action="DeactivateInvestor" name="deactivateForm" onsubmit="return validateDeactivation()" method="post">
                         <div asp-validation-summary="All" class="text-danger"></div>
                         <input asp-for="Id" class="form-control" type="hidden" />
                         <div class="form-group">
                             @*<label asp-for="DeactivateDate"></label>*@
                             <input id="DeactivateDate" name="DeactivateDate" class="form-control" type="date" placeholder="Date (DD/MM/YYYY)" />
-                            @*<span asp-validation-for="DeactivateDate" class="text-danger"></span>*@
+                            <span id="deactivateDateSpan" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             @*<label asp-for="SharesBurned"></label>*@
@@ -56,8 +71,8 @@
                         </div>
                         <div class="form-group">
                             @*<label asp-for="AmountReturned"></label>*@
-                            <input id="AmountReturned" name="AmountReturned" class="form-control" type="number" placeholder="Amount Returns"/>
-                            @*<span asp-validation-for="AmountReturned" class="text-danger"></span>*@
+                            <input id="AmountReturned" name="AmountReturned" class="form-control" placeholder="Amount Returns"/>
+                            <span id="deactivateAmountSpan" class="text-danger"></span>
                         </div>
                         <div style="text-align: center">
                             <button type="submit" class="btn btn-default" style="color: lightgray; border-radius: 15px; width: 250px;">Deactivate and return</button>
@@ -67,23 +82,23 @@
             </div>
             <div id="activate" class="row" style="display: none">
                 <div class="col-md-9" style="float: none; margin: 0 auto;">
-                    <form asp-route-returnUrl="Panel" asp-action="ActivateInvestor" method="post">
+                    <form asp-route-returnUrl="Panel" asp-action="ActivateInvestor" onsubmit="return validateActivation()" method="post">
                         <div asp-validation-summary="All" class="text-danger"></div>
                         <input asp-for="Id" class="form-control" type="hidden" />
                         <div class="form-group">
                             @*<label asp-for="DeactivateDate"></label>*@
                             <input id="Date" name="Date" class="form-control" type="date" placeholder="Date (DD/MM/YYYY)" />
-                            @*<span asp-validation-for="DeactivateDate" class="text-danger"></span>*@
+                            <span id="activateDateSpan" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             @*<label asp-for="AmountReturned"></label>*@
                             <input id="AmountInvested" name="AmountInvested" class="form-control" type="number" placeholder="Amount Invested"/>
-                            @*<span asp-validation-for="AmountReturned" class="text-danger"></span>*@
+                            <span id="activateAmountSpan" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             @*<label asp-for="SharesBurned"></label>*@
                             <input id="SharesReceived" name="SharesReceived" class="form-control" placeholder="Shares Received" /> 
-                            @*<span asp-validation-for="SharesBurned" class="text-danger"></span>*@
+                            <span id="activateSharesSpan" class="text-danger"></span>
                         </div>
                         <div style="text-align: center">
                             <button type="submit" class="btn btn-default" style="color: lightgray; border-radius: 15px; width: 250px;">Activate</button>
@@ -114,6 +129,7 @@
         $("#agreement-div").toggle();
         $("#action-buttons").toggle();
         $("#deactivate").toggle();
+        $("#dates").toggle();
     }
 
     function activateConfirm() {
@@ -122,4 +138,49 @@
         $("#activate").toggle();
         $("#dates").toggle();
     }
+
+    function validateDeactivation() {
+        var errors = 0;
+        $("#deactivateDateSpan").text("");
+        $("#deactivateAmountSpan").text("");
+        var date = $("#DeactivateDate").val();
+        var amount = $("#AmountReturned").val();
+        console.log("date - " + date);
+        if (date === "") {
+            errors++;
+            $("#deactivateDateSpan").text("Empty value");
+        }
+        if (amount === "") {
+            errors++;
+            $("#deactivateAmountSpan").text("Empty value");
+        }
+        if (errors > 0)
+            return false;
+    }
+
+    function validateActivation() {
+        var errors = 0;
+        $("#activateDateSpan").text("");
+        $("#activateAmountSpan").text("");
+        $("#activateSharesSpan").text("");
+        var date = $("#Date").val();
+        var amount = $("#AmountInvested").val();
+        var shares = $("#SharesReceived").val();
+        console.log("date - " + date);
+        if (date === "") {
+            errors++;
+            $("#activateDateSpan").text("Empty value");
+        }
+        if (amount === "") {
+            errors++;
+            $("#activateAmountSpan").text("Empty value");
+        }
+         if (shares === "") {
+            errors++;
+            $("#activateSharesSpan").text("Empty value");
+        }
+        if (errors > 0)
+            return false;
+    }
+
 </script>

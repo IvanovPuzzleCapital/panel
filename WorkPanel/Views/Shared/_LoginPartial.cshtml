@@ -1,6 +1,9 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-
+@if (ViewData.Count == 0)
+{
+    //return; 
+}
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="navbar-inner">
@@ -15,7 +18,7 @@
                    </li>
 
                    <li>
-                       <a asp-area="" asp-action="AddInvestor" asp-controller="Panel" title="Investors" data-toggle="modal" data-target="#add-modal" ><b style="color: white; border-radius: 20px; background: blue; padding: 10px;">+ Add Investor</b></a>
+                       <a href="#" title="Investors" data-toggle="modal" data-target="#add-modal" ><b style="color: white; border-radius: 20px; background: blue; padding: 10px;">+ Add Investor</b></a>
                    </li>
                }
                else
