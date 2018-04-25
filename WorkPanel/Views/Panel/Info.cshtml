@@ -18,18 +18,24 @@
                 }
             </div>
             <hr/>
+            <div id="dates">
+                <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">Activation Date - @Model.Date.ToShortDateString()</h5>
+                @if (Model.Status == Status.Inactive)
+                {
+                    <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">Deactivation Date - @Model.DeactivateDate.ToShortDateString()</h5>
+                }                
+            </div>
             <div id="agreement-div">
                 <h5 style="text-align: center; font-weight: bold; word-wrap: break-word; margin: 20px;">@Model.Agreement</h5>
-            </div>            
+            </div>   
             <div id="action-buttons" class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 0px;">
                 @if (Model.Status == Status.Active)
                 {
-                    @*<a class="btn btn-default" style="color: lightgray; border-radius: 15px; width: 100px;" asp-action="DeactivateInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Deactivate">Deactivate</a>*@
                     <input type="submit" value="Deactivate" class="btn btn-default" style="color: lightgray; border-radius: 15px; width: 100px;" onclick="deactivateConfirm()"/>
                 }
                 else
                 {
-                    @*<a class="btn btn-default" style="color: lightgray; border-radius: 15px; margin-right: 25px; width: 100px;" asp-action="ActivateInvestor" asp-route-id="@Model.Id" asp-controller="Panel" title="Activate">Activate</a>*@
+                    <input type="submit" value="Activate" class="btn btn-default" style="color: white; background: lightblue; border-radius: 15px; width: 100px; margin-right: 15px" onclick="activateConfirm()"/>
                     <input type="submit" value="Remove" class="btn btn-default" style="color: white; border-radius: 15px; background: #F94F4A; width: 100px;" onclick="removeConfirm()"/>
                 }                          
             </div>
@@ -59,6 +65,32 @@
                     </form>
                 </div>
             </div>
+            <div id="activate" class="row" style="display: none">
+                <div class="col-md-9" style="float: none; margin: 0 auto;">
+                    <form asp-route-returnUrl="Panel" asp-action="ActivateInvestor" method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <input asp-for="Id" class="form-control" type="hidden" />
+                        <div class="form-group">
+                            @*<label asp-for="DeactivateDate"></label>*@
+                            <input id="Date" name="Date" class="form-control" type="date" placeholder="Date (DD/MM/YYYY)" />
+                            @*<span asp-validation-for="DeactivateDate" class="text-danger"></span>*@
+                        </div>
+                        <div class="form-group">
+                            @*<label asp-for="AmountReturned"></label>*@
+                            <input id="AmountInvested" name="AmountInvested" class="form-control" type="number" placeholder="Amount Invested"/>
+                            @*<span asp-validation-for="AmountReturned" class="text-danger"></span>*@
+                        </div>
+                        <div class="form-group">
+                            @*<label asp-for="SharesBurned"></label>*@
+                            <input id="SharesReceived" name="SharesReceived" class="form-control" placeholder="Shares Received" /> 
+                            @*<span asp-validation-for="SharesBurned" class="text-danger"></span>*@
+                        </div>
+                        <div style="text-align: center">
+                            <button type="submit" class="btn btn-default" style="color: lightgray; border-radius: 15px; width: 250px;">Activate</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
         <div id="confirm" class="form-group" style="display: none">        
             <div style="margin: 10px;">
@@ -82,5 +114,12 @@
         $("#agreement-div").toggle();
         $("#action-buttons").toggle();
         $("#deactivate").toggle();
+    }
+
+    function activateConfirm() {
+        $("#agreement-div").toggle();
+        $("#action-buttons").toggle();
+        $("#activate").toggle();
+        $("#dates").toggle();
     }
 </script>

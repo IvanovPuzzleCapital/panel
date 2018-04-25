@@ -5,7 +5,7 @@
     ViewData["Title"] = "Panel Page";    
 }
 
-<div class="index_body">
+<div>
     <div style="padding: 30px; background: whitesmoke;">
         <div class="row">
             <div class="col-md-3">
@@ -74,11 +74,11 @@
                         </td>
                         <td>
                             <a id="createEditCustomerModal" data-toggle="modal" data-target="#modal-action-info" asp-action="Info" asp-route-id= "@item.Id">
-                               @item.Name
+                                @item.Name
                             </a>
                             
                         </td>
-                        <td>@item.Date.ToShortDateString()</td>
+                        <td>@(item.Status==Status.Active ? item.Date.ToShortDateString() : item.DeactivateDate.ToShortDateString())</td>
                         <td>$@item.AmountInvested.ToString("n0", new CultureInfo("en-US"))</td>
                         <td>@item.SharesReceived.ToString("n0", new CultureInfo("en-US"))</td>
                         <td>$@((item.AmountInvested / item.SharesReceived).ToString("n0", new CultureInfo("en-US")))</td>

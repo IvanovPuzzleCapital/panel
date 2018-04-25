@@ -26,27 +26,27 @@ namespace WorkPanel.Data
             //create database schema if none exists
             _context.Database.EnsureCreated();
 
-            //If there is already an Administrator role, abort
-            if (!_context.Roles.Any(r => r.Name == "Administrator"))
-            {
-                //Create the Administartor Role
-                await _roleManager.CreateAsync(new IdentityRole("Administrator"));
-            }
+            ////If there is already an Administrator role, abort
+            //if (!_context.Roles.Any(r => r.Name == "Administrator"))
+            //{
+            //    //Create the Administartor Role
+            //    await _roleManager.CreateAsync(new IdentityRole("Administrator"));
+            //}
 
-            if (!_context.Users.Any())
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    string userName = "testuser" + (i + 1);
-                    string password = "Zaq123456789";
-                    var result = await _userManager.CreateAsync(new ApplicationUser { UserName = userName, Email = userName, EmailConfirmed = true }, password);
-                    if (result.Succeeded)
-                    {
-                        var user = await _userManager.FindByEmailAsync(userName);
-                        await _userManager.AddToRoleAsync(user, "Administrator");
-                    }
-                }
-            }
+            //if (!_context.Users.Any())
+            //{
+            //    for (int i = 0; i < 5; i++)
+            //    {
+            //        string userName = "testuser" + (i + 1);
+            //        string password = "Zaq123456789";
+            //        var result = await _userManager.CreateAsync(new ApplicationUser { UserName = userName, Email = userName, EmailConfirmed = true }, password);
+            //        if (result.Succeeded)
+            //        {
+            //            var user = await _userManager.FindByEmailAsync(userName);
+            //            await _userManager.AddToRoleAsync(user, "Administrator");
+            //        }
+            //    }
+            //}
         }
     }
 }

@@ -69,6 +69,7 @@ namespace WorkPanel.Controllers
                 model.Status = investor.Status;
                 model.Name = investor.Name;
                 model.Date = investor.Date;
+                model.DeactivateDate = investor.DeactivateDate;
                 model.Agreement = investor.Agreement;
                 model.AmountInvested = investor.AmountInvested;
                 model.SharesReceived = investor.SharesReceived;
@@ -85,17 +86,25 @@ namespace WorkPanel.Controllers
                 investor.DeactivateDate = model.DeactivateDate;
                 investor.SharesBurned = investor.SharesReceived;
                 investor.AmountReturned = model.AmountReturned;
+                investor.AmountInvested = 0;
+                investor.SharesReceived = 0;
                 dbContext.SaveChanges();
             }
             return RedirectToAction("Index");
         }
 
-        public IActionResult ActivateInvestor(int id)
+        public IActionResult ActivateInvestor(InvestorViewModel model)
         {
-            var investor = dbContext.Investors.FirstOrDefault(p => p.Id == id);
+            var investor = dbContext.Investors.FirstOrDefault(p => p.Id == model.Id);
             if (investor != null)
             {
                 investor.Status = Status.Active;
+                investor.Date = model.Date;
+                investor.DeactivateDate = model.DeactivateDate;
+                investor.SharesBurned = 0;
+                investor.AmountReturned = 0;
+                investor.AmountInvested = model.AmountInvested;
+                investor.SharesReceived = model.SharesReceived;
                 dbContext.SaveChanges();
             }
             return RedirectToAction("Index");
