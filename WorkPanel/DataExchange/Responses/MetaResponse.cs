@@ -1,4 +1,4 @@
-﻿namespace WorkPanel.DataExchange.Responces
+﻿namespace WorkPanel.DataExchange.Responses
 {
     public class MetaResponse<T>
     {

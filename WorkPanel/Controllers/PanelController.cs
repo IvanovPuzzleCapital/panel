@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WorkPanel.Data;
-using WorkPanel.DataExchange.Responces;
+using WorkPanel.DataExchange.Responses;
 using WorkPanel.Models;
 using WorkPanel.Models.PanelViewModels;
 

@@ -45,13 +45,14 @@ namespace WorkPanel
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
-            {
+            {                
                 app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }
             else
             {
+                app.UseBrowserLink();
                 app.UseExceptionHandler("/Home/Error");
             }
 
