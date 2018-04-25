@@ -29,8 +29,8 @@ namespace WorkPanel.Controllers
             var viewModel = new PanelViewModel
             {
                 Investors = investors,
-                TotalInvested = investors.Sum(investor => investor.AmountInvested) - investors.Sum(investor => investor.AmountReturned),
-                TotalShares = investors.Sum(investor => investor.SharesReceived) - investors.Sum(investor => investor.SharesBurned)
+                TotalInvested = investors.Sum(investor => investor.AmountInvested),
+                TotalShares = investors.Sum(investor => investor.SharesReceived)
             };
 
             return View(viewModel);

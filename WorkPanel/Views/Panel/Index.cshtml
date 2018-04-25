@@ -81,7 +81,7 @@
                         <td>@(item.Status==Status.Active ? item.Date.ToShortDateString() : item.DeactivateDate.ToShortDateString())</td>
                         <td>$@item.AmountInvested.ToString("n0", new CultureInfo("en-US"))</td>
                         <td>@item.SharesReceived.ToString("n0", new CultureInfo("en-US"))</td>
-                        <td>$@((item.AmountInvested / item.SharesReceived).ToString("n0", new CultureInfo("en-US")))</td>
+                        <td>$@(item.Status==Status.Active ? (item.AmountInvested / item.SharesReceived).ToString("n0", new CultureInfo("en-US")):0.ToString())</td>
                         <td style="text-align: end;">50%</td>
                     </tr>
                 }
