@@ -22,20 +22,20 @@
                 <div class="col-xs-6">
                     @if (Model.HistoricalDateList.Count > 0)
                     {
-                        <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">Activation Date</h5>
+                        <h5 style="text-align: center; word-wrap: break-word; margin: 20px; font-weight: bold">Activation Date</h5>
                         foreach (var item in Model.HistoricalDateList)
                         {
-                            <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">@item.ToShortDateString()</h5>
+                            <h5 style="text-align: center; word-wrap: break-word; margin: 10px;">@item.ToShortDateString()</h5>
                         }
                     }
                 </div>
                 <div class="col-xs-6">
                     @if (Model.HistoricalDeactivateDateList.Count > 0)
                     {
-                        <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">Deactivation Date</h5>
+                        <h5 style="text-align: center; word-wrap: break-word; margin: 20px; font-weight: bold">Deactivation Date</h5>
                         foreach (var item in Model.HistoricalDeactivateDateList)
                         {
-                            <h5 style="text-align: center; word-wrap: break-word; margin: 20px;">@item.ToShortDateString()</h5>
+                            <h5 style="text-align: center; word-wrap: break-word; margin: 10px;">@item.ToShortDateString()</h5>
                         }
                     }
                 </div>
@@ -71,7 +71,7 @@
                         </div>
                         <div class="form-group">
                             @*<label asp-for="AmountReturned"></label>*@
-                            <input id="AmountReturned" name="AmountReturned" class="form-control" placeholder="Amount Returns"/>
+                            <input id="AmountReturned" name="AmountReturned" type="number" class="form-control" placeholder="Amount Returns"/>
                             <span id="deactivateAmountSpan" class="text-danger"></span>
                         </div>
                         <div style="text-align: center">
@@ -97,7 +97,7 @@
                         </div>
                         <div class="form-group">
                             @*<label asp-for="SharesBurned"></label>*@
-                            <input id="SharesReceived" name="SharesReceived" class="form-control" placeholder="Shares Received" /> 
+                            <input id="SharesReceived" name="SharesReceived" class="form-control" type="number" placeholder="Shares Received" /> 
                             <span id="activateSharesSpan" class="text-danger"></span>
                         </div>
                         <div style="text-align: center">
@@ -150,9 +150,9 @@
             errors++;
             $("#deactivateDateSpan").text("Empty value");
         }
-        if (amount === "") {
+        if (amount === "" || amount <= 0) {
             errors++;
-            $("#deactivateAmountSpan").text("Empty value");
+            $("#deactivateAmountSpan").text("Field is empty or below zeroe");
         }
         if (errors > 0)
             return false;
@@ -171,13 +171,13 @@
             errors++;
             $("#activateDateSpan").text("Empty value");
         }
-        if (amount === "") {
+        if (amount === "" || amount <= 0) {
             errors++;
-            $("#activateAmountSpan").text("Empty value");
+            $("#activateAmountSpan").text("Field is empty or below zero");
         }
-         if (shares === "") {
+         if (shares === "" || shares <= 0) {
             errors++;
-            $("#activateSharesSpan").text("Empty value");
+            $("#activateSharesSpan").text("Field is empty or below zero");
         }
         if (errors > 0)
             return false;

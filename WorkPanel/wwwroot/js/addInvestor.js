@@ -15,8 +15,8 @@ vueObj = new Vue({
             if (this.name === "") this.errors.push("name");
             if (this.date === "") this.errors.push("date");
             if (this.agreement === "") this.errors.push("agreement");
-            if (this.amount === "") this.errors.push("amount");
-            if (this.shares === "") this.errors.push("shares");
+            if (this.amount === "" || this.amount <= 0) this.errors.push("amount");
+            if (this.shares === "" || this.shares <= 0) this.errors.push("shares");
             if (this.errors.length > 0) return;
             $.post("/Panel/InsertInvestor",
                     {
