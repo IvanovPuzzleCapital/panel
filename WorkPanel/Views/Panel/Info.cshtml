@@ -1,6 +1,8 @@
 ﻿@model WorkPanel.Models.PanelViewModels.InvestorViewModel
-<button type="button" class="close" style="margin: 10px;" data-dismiss="modal">&times;</button>
-<div class="modal-body">
+<div style="height:30px; padding: 10px;">
+    <button type="button" class="close" data-dismiss="modal" >&times;</button>
+</div>
+<div class="modal-body" style="margin-top: 0px;">
     
     @Html.AntiForgeryToken()
     @if (Model != null)
