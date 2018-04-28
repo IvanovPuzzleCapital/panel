@@ -1,4 +1,8 @@
-﻿var vueObj;
+﻿$(function() {
+    $("#datepicker").datepicker({ dateFormat: 'dd-mm-yy' });
+});
+
+var vueObj;
 vueObj = new Vue({
     el: '#app',
     data: {
@@ -12,12 +16,14 @@ vueObj = new Vue({
     methods: {
         add() {
             this.errors = [];
+            this.date = $("#datepicker").val();
             if (this.name === "") this.errors.push("name");
             if (this.date === "") this.errors.push("date");
             if (this.agreement === "") this.errors.push("agreement");
             if (this.amount === "" || this.amount <= 0) this.errors.push("amount");
             if (this.shares === "" || this.shares <= 0) this.errors.push("shares");
             if (this.errors.length > 0) return;
+            $("#add-button").attr("disabled", "disabled");
             $.post("/Panel/InsertInvestor",
                     {
                         Name: this.name,
@@ -32,7 +38,7 @@ vueObj = new Vue({
                         }
                     })
                 .fail(function(xhr, status, error) {
-                    
+                    $("#add-button").removeAttr("disabled");
                 });
         }
     }

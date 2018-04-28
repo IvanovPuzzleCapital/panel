@@ -10,7 +10,7 @@
             <span class="text-danger" v-if="errors.includes('name')">Field is empty</span>
         </div>
         <div class="form-group">                
-            <input class="form-control" type="date" placeholder="Date (DD/MM/YYYY)" v-model="date"/>
+            <input id="datepicker" class="form-control" placeholder="Date (DD/MM/YYYY)"/>
             <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
         </div>
         <div class="form-group">                
@@ -26,7 +26,7 @@
             <span class="text-danger" v-if="errors.includes('shares')">Field is empty or below zero</span>
         </div>
         <div class="form-group" style="text-align: center; margin-bottom: 0px">
-            <input type="submit" value="Add" class="btn btn-default" style="border-radius: 20px;width: 150px;background: whitesmoke;" v-on:click="add" />
+            <input id="add-button" type="submit" value="Add" class="btn btn-default" style="border-radius: 20px;width: 150px;background: whitesmoke;" v-on:click="add" />
         </div>
         @*</form>*@
     </div>
