@@ -1,4 +1,6 @@
 ﻿@using System.Globalization
+@using WorkPanel.Models.PortfolioViewModels
+@model PortfolioViewModel
 @{
     ViewData["Title"] = "Portfolio";    
 }
@@ -9,7 +11,7 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="row" style="display: ruby">
-                        <h1 style="margin-left: -5px;">$<span style="font-weight: bold">@(8097386.ToString("n0", new CultureInfo("en-US")))</span></h1>
+                        <h1 style="margin-left: -5px;">$<span style="font-weight: bold">@(Model.NetAssetValue.ToString("n0", new CultureInfo("en-US")))</span></h1>
                         <h3><span style="font-weight: bold; color: #2BBF5C">+5.02%</span></h3>
                     </div>
                     <div class="row" style="margin-top: -15px;">
@@ -40,7 +42,7 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">$1,291,450</span></h3>
+                        <h3><span style="font-weight: bold; color: #2BBF5C">$@(Model.Acquisition.ToString("n0", new CultureInfo("en-US")))</span></h3>
                         <h5 style="margin-top: -5px;"><span>Acquisition Cost</span></h5>
                     </div>
                 </div>
@@ -70,30 +72,17 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="hover-tr">
-                <td><span style="font-weight: bold; font-size: large;">Bitcoin</span></td>
-                <td><span style="font-size: large;">10.098657</span> <span style="color: lightgray; font-size: large;">BTC</span></td>
-                <td><span style="color: red; font-size: large;">$13,874.40</span><span style="color: red; margin-left: 10px; font-size: small;">-13.76%</span></td>
-                <td><span style="font-size: large;">$140,231</span></td>
-                <td><span style="color: #2BBF5C; font-size: large;">$20,112.80</span><span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+13.76%</span></td>
-                <td style="text-align: end;"><span style="font-size: large;">3.28</span></td>
-            </tr>
-            <tr class="hover-tr">
-                <td><span style="font-weight: bold; font-size: large;">Bitcoin</span></td>
-                <td><span style="font-size: large;">10.098657</span> <span style="color: lightgray; font-size: large;">BTC</span></td>
-                <td><span style="color: red; font-size: large;">$13,874.40</span><span style="color: red; margin-left: 10px; font-size: small;">-13.76%</span></td>
-                <td><span style="font-size: large;">$140,231</span></td>
-                <td><span style="color: #2BBF5C; font-size: large;">$20,112.80</span><span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+13.76%</span></td>
-                <td style="text-align: end;"><span style="font-size: large;">3.28</span></td>
-            </tr>
-            <tr class="hover-tr">
-                <td><span style="font-weight: bold; font-size: large;">Bitcoin</span></td>
-                <td><span style="font-size: large;">10.098657</span> <span style="color: lightgray; font-size: large;">BTC</span></td>
-                <td><span style="color: red; font-size: large;">$13,874.40</span><span style="color: red; margin-left: 10px; font-size: small;">-13.76%</span></td>
-                <td><span style="font-size: large;">$140,231</span></td>
-                <td><span style="color: #2BBF5C; font-size: large;">$20,112.80</span><span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+13.76%</span></td>
-                <td style="text-align: end;"><span style="font-size: large;">3.28</span></td>
-            </tr>
+            @foreach (var asset in Model.Assets)
+            {
+                <tr class="hover-tr">
+                    <td><span style="font-weight: bold; font-size: large;">@asset.Name</span></td>
+                    <td><span style="font-size: large;">@asset.Quantity.ToString("n0", new CultureInfo("en-US"))</span> <span style="color: lightgray; font-size: large;">@asset.ShortName</span></td>
+                    <td><span style="color: red; font-size: large;">$13,874.40</span><span style="color: red; margin-left: 10px; font-size: small;">-13.76%</span></td>
+                    <td><span style="font-size: large;">$@asset.Exposure.ToString("n0", new CultureInfo("en-US"))</span></td>
+                    <td><span style="color: #2BBF5C; font-size: large;">$20,112.80</span><span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+13.76%</span></td>
+                    <td style="text-align: end;"><span style="font-size: large;">3.28</span></td>
+                </tr>
+            }
             </tbody>
         </table>
     </div>
@@ -111,7 +100,7 @@
 </div>
 
 
-<script src="~/lib/jquery/dist/jquery.js"></script>
+
 <script src="~/lib/chartjs/chart.js"></script>
 <script>
     var ctx = $("#myChart");

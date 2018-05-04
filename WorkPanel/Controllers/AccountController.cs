@@ -31,6 +31,11 @@ namespace WorkPanel.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login(string returnUrl = null)
         {
+            if (this.User.Identity.IsAuthenticated)
+            {
+                return Redirect("../Panel/Index");
+            }
+
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 

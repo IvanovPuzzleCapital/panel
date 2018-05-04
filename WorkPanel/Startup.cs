@@ -42,7 +42,7 @@ namespace WorkPanel
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IDbInitializer dbInitializer)
+        public async void Configure(IApplicationBuilder app, IHostingEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
             {                
@@ -58,7 +58,7 @@ namespace WorkPanel
 
             app.UseStaticFiles();
 
-            app.UseAuthentication();
+            app.UseAuthentication();            
 
             app.UseMvc(routes =>
             {
@@ -67,7 +67,7 @@ namespace WorkPanel
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            dbInitializer.Initialize();
+            await dbInitializer.Initialize();
         }
     }
 }

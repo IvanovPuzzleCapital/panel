@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WorkPanel.Data;
+using WorkPanel.Models;
+using WorkPanel.Models.PortfolioViewModels;
 
 namespace WorkPanel.Controllers
 {
@@ -20,7 +23,32 @@ namespace WorkPanel.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View();
+            var assets = dbContext.Assets.ToList();
+            var investors = await dbContext.Investors.ToListAsync();
+            var totalInvested = investors.Sum(i => i.AmountInvested);            
+            if (assets.Count == 0)
+            {
+                var usdAsset = new Asset
+                {
+                    Name = "USD",
+                    ShortName = "USD",
+                    Quantity = totalInvested,
+                    Exposure = totalInvested,
+                    Price = 1
+                };
+                assets.Add(usdAsset);
+                dbContext.SaveChanges();
+            }
+
+            var viewModel = new PortfolioViewModel
+            {
+                Assets = assets,
+                NetAssetValue = assets.Sum(a => a.Exposure),
+                Acquisition = totalInvested
+            };
+
+
+            return View(viewModel);
         }
 
         public IActionResult AddAsset()

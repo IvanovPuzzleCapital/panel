@@ -8,6 +8,8 @@ namespace WorkPanel.Data
     {
         public DbSet<Investor> Investors { get; set; }
 
+        public DbSet<Asset> Assets { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

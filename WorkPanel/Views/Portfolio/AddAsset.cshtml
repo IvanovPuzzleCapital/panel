@@ -1,38 +1,56 @@
 ﻿<div style="text-align: center;">
-    <h4>Add Investor</h4>
+    <h4>Add an asset</h4>
 </div>
 <hr />
 <div id="app" class="row">
     <div class="col-md-9" style="float: none; margin: 0 auto;">
         @*<form>*@
-            <div class="form-group">                
-                <input class="form-control" type="text" placeholder="Name" v-model="name"/>
-                <span class="text-danger" v-if="errors.includes('name')">Field is empty</span>
+        <div class="form-group">                
+            <input class="form-control" type="text" placeholder="Asset Name" v-model="name"/>
+            <span class="text-danger" v-if="errors.includes('name')">Field is empty</span>
+        </div>
+        <div class="form-group">
+            <div class='input-group date' id='datetimepicker1'>
+                <input type='text' class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)"/>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
             </div>
-            <div class="form-group">                
-                <input class="form-control" type="date" placeholder="Date (DD/MM/YYYY)" v-model="date"/>
-                <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
+        </div>
+        @*<div class="form-group">                
+            <input id="datepicker" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)"/>
+            <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
+        </div>*@
+        <div class="form-group">                
+            <input class="form-control" type="number" placeholder="Initial Quantity" v-model="amount"/>
+            <span class="text-danger" v-if="errors.includes('amount')">Field is empty</span>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="number" class="form-control" placeholder="Initial Price" v-model="shares"/>
+                <span class="input-group-addon">
+                    <span id="btc" v-bind:class="[isUSD ? notActiveClass:activeClass]" v-on:click="togglePrice">BTC</span>
+                    <span id="usd" v-bind:class="[isUSD ? activeClass : notActiveClass]" v-on:click="togglePrice">USD</span>
+                </span>
             </div>
-            <div class="form-group">                
-                <input class="form-control" type="text" placeholder="Agreement" v-model="agreement"/>
-                <span class="text-danger" v-if="errors.includes('agreement')">Field is empty</span>
-            </div>
-            <div class="form-group">                
-                <input class="form-control" type="number" placeholder="Amount Invested" v-model="amount"/>
-                <span class="text-danger" v-if="errors.includes('amount')">Field is empty</span>
-            </div>
-            <div class="form-group">                
-                <input class="form-control" type="number" placeholder="Shares Received" v-model="shares"/>
-                <span class="text-danger" v-if="errors.includes('shares')">Field is empty</span>
-            </div>
-            <div class="form-group" style="text-align: center; margin-bottom: 0px">
-                <input type="submit" value="Add" class="btn btn-default" style="border-radius: 20px;width: 150px;background: whitesmoke;" v-on:click="add" />
-            </div>
-        @*</form>*@
+            <span class="text-danger" v-if="errors.includes('shares')">Field is empty</span>
+        </div>
+        <div class="form-group" style="text-align: center; margin-bottom: 0px">
+            <input type="submit" value="Add" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" />
+        </div>
+        @*</form>*@ 
     </div>
 </div>
+
+<script src="~/js/addAsset.js" asp-append-version="true"></script>
 
 @section Scripts {
    
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+ <script type="text/javascript">
+            $(function () {
+                $('#datetimepicker1').datetimepicker();
+            });
+        </script>
