@@ -1,12 +1,22 @@
-﻿<div style="text-align: center;">
+﻿@using WorkPanel.Models.PortfolioViewModels
+@model PortfolioViewModel
+<div style="text-align: center;">
     <h4>Add an asset</h4>
 </div>
 <hr />
 <div id="app" class="row">
     <div class="col-md-9" style="float: none; margin: 0 auto;">
         @*<form>*@
-        <div class="form-group">                
-            <input class="form-control" type="text" placeholder="Asset Name" v-model="name"/>
+        
+
+        <div class="form-group">          
+            <input class="form-control" type="text" placeholder="Asset Name" list="currencies" />
+            <datalist id="currencies">
+                @foreach (var currency in Model.Currencies)
+                {
+                    <option>@currency</option>
+                }
+            </datalist>
             <span class="text-danger" v-if="errors.includes('name')">Field is empty</span>
         </div>
         <div class="form-group">
@@ -17,20 +27,16 @@
                 </span>
             </div>
         </div>
-        @*<div class="form-group">                
-            <input id="datepicker" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)"/>
-            <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
-        </div>*@
         <div class="form-group">                
-            <input class="form-control" type="number" placeholder="Initial Quantity" v-model="amount"/>
+            <input class="form-control" type="number" min="1" step="any" placeholder="Initial Quantity" v-model="amount"/>
             <span class="text-danger" v-if="errors.includes('amount')">Field is empty</span>
         </div>
         <div class="form-group">
             <div class="input-group">
                 <input type="number" class="form-control" placeholder="Initial Price" v-model="shares"/>
                 <span class="input-group-addon">
-                    <span id="btc" v-bind:class="[isUSD ? notActiveClass:activeClass]" v-on:click="togglePrice">BTC</span>
-                    <span id="usd" v-bind:class="[isUSD ? activeClass : notActiveClass]" v-on:click="togglePrice">USD</span>
+                    <span v-bind:class="[isUSD ? notActiveClass : activeClass]" v-on:click="togglePrice">BTC</span>
+                    <span v-bind:class="[isUSD ? activeClass : notActiveClass]" v-on:click="togglePrice">USD</span>
                 </span>
             </div>
             <span class="text-danger" v-if="errors.includes('shares')">Field is empty</span>
@@ -48,9 +54,3 @@
    
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-
- <script type="text/javascript">
-            $(function () {
-                $('#datetimepicker1').datetimepicker();
-            });
-        </script>

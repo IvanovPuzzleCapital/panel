@@ -1,4 +1,8 @@
-﻿var vueObj;
+﻿$(function() {
+    $('#datetimepicker1').datetimepicker();
+});
+
+var vueObj;
 vueObj = new Vue({
     el: '#app',
     data: {

@@ -9,5 +9,7 @@ namespace WorkPanel.Models.PortfolioViewModels
         public double NetAssetValue { get; set; }
 
         public double Acquisition { get; set; }
+
+        public List<string> Currencies { get; set; }
     }
 }

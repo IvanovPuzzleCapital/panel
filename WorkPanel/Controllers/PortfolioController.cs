@@ -14,6 +14,11 @@ namespace WorkPanel.Controllers
     {
         private ApplicationDbContext dbContext;
 
+        private PortfolioViewModel _viewModel;
+
+        public List<string> Currencies =
+            new List<string>() {"Bitcoin", "Ethereum", "Ripple", "Cardano", "Litecoin", "Stellar"};
+
         public PortfolioController(ApplicationDbContext context)
         {
             dbContext = context;
@@ -40,20 +45,21 @@ namespace WorkPanel.Controllers
                 dbContext.SaveChanges();
             }
 
-            var viewModel = new PortfolioViewModel
+            _viewModel = new PortfolioViewModel
             {
                 Assets = assets,
                 NetAssetValue = assets.Sum(a => a.Exposure),
-                Acquisition = totalInvested
+                Acquisition = totalInvested,
+                Currencies = Currencies
             };
 
 
-            return View(viewModel);
+            return View(_viewModel);
         }
 
         public IActionResult AddAsset()
         {
-            return View();
+            return View(_viewModel);
         }
     }
 }
