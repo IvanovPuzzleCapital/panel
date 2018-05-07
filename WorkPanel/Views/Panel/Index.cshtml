@@ -26,7 +26,7 @@
             </div>
             <div class="col-md-3">
                 <div>
-                    <h1>$<span style="font-weight: bold">@(5000000.ToString("n0", new CultureInfo("en-US")))</span></h1>
+                    <h1>$<span style="font-weight: bold">@((Model.NetAssetValue - Model.TotalInvested).ToString("n0", new CultureInfo("en-US")))</span></h1>
                 </div>
                 <div>
                     <h3>Profit</h3>
@@ -34,7 +34,7 @@
             </div>
             <div class="col-md-3">
                 <div>
-                    <h1>$<span style="font-weight: bold">500</span></h1>
+                    <h1>$<span style="font-weight: bold">@((Model.NetAssetValue / Model.TotalShares).ToString("n2", new CultureInfo("en-US")))</span></h1>
                 </div>
                 <div>
                     <h3>Current Share Value</h3>
@@ -82,7 +82,7 @@
                         <td>$@item.AmountInvested.ToString("n0", new CultureInfo("en-US"))</td>
                         <td>@item.SharesReceived.ToString("n0", new CultureInfo("en-US"))</td>
                         <td>$@(item.Status==Status.Active ? (item.AmountInvested / item.SharesReceived).ToString("n", new CultureInfo("en-US")):0.ToString())</td>
-                        <td style="text-align: end;">50%</td>
+                        <td style="text-align: end;">@(((Model.NetAssetValue * item.SharesReceived - item.AmountInvested)/item.AmountInvested).ToString("n2"))%</td>                         
                     </tr>
                 }
                 </tbody>

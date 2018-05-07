@@ -6,10 +6,12 @@ namespace WorkPanel.Models.PortfolioViewModels
     {
         public List<Asset> Assets { get; set; }
 
+        public bool HasBtc { get; set; }
+
         public double NetAssetValue { get; set; }
 
         public double Acquisition { get; set; }
 
-        public List<string> Currencies { get; set; }
+        public List<Currency> Currencies { get; set; }
     }
 }

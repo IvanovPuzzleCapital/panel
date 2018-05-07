@@ -17,7 +17,7 @@ namespace WorkPanel.Controllers
     [Authorize]
     public class PanelController : Controller
     {
-        private ApplicationDbContext dbContext;
+        private readonly ApplicationDbContext dbContext;
 
         public PanelController(ApplicationDbContext context)
         {
@@ -29,11 +29,13 @@ namespace WorkPanel.Controllers
         public async Task<IActionResult> Index()
         {
             var investors = await dbContext.Investors.OrderBy(s => s.Status).ThenByDescending(s => s.Date).ToListAsync();
+            var assets = await dbContext.Assets.ToListAsync();
             var viewModel = new PanelViewModel
             {
                 Investors = investors,
                 TotalInvested = investors.Sum(investor => investor.AmountInvested),
-                TotalShares = investors.Sum(investor => investor.SharesReceived)
+                TotalShares = investors.Sum(investor => investor.SharesReceived),
+                NetAssetValue = assets.Sum(a => a.Exposure)
             };
 
             return View(viewModel);
@@ -45,7 +47,22 @@ namespace WorkPanel.Controllers
             try
             {
                 var newInvestor = new Investor(viewModel);
-                dbContext.Investors.Add(newInvestor);
+                
+                var assets = dbContext.Assets.ToList();
+                if (assets.Count == 0)
+                {
+                    var usdAsset = new Asset
+                    {
+                        Name = "USD",
+                        ShortName = "USD",
+                        Quantity = newInvestor.AmountInvested,
+                        Exposure = newInvestor.AmountInvested,
+                        Price = 1
+                    };
+                    dbContext.Investors.Add(newInvestor);
+                    dbContext.Assets.Add(usdAsset);
+                    dbContext.SaveChanges();
+                }
                 dbContext.SaveChanges();
                 return this.Json(new MetaResponse<object> { StatusCode = 200 });
 

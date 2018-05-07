@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using WorkPanel.Data;
 using WorkPanel.Models;
+using WorkPanel.Services;
 
 namespace WorkPanel
 {
@@ -32,6 +34,8 @@ namespace WorkPanel
 
             // Add Database Initializer
             services.AddScoped<IDbInitializer, DbInitializer>();
+
+            //services.AddSingleton<IHostedService, DownloadBackgroundService>();
 
             services.Configure<IdentityOptions>(options =>
             {

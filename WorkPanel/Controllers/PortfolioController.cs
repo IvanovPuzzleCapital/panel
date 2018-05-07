@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WorkPanel.Data;
+using WorkPanel.DataExchange.Responses;
 using WorkPanel.Models;
 using WorkPanel.Models.PortfolioViewModels;
 
@@ -12,12 +13,20 @@ namespace WorkPanel.Controllers
 {
     public class PortfolioController : Controller
     {
-        private ApplicationDbContext dbContext;
+        private readonly ApplicationDbContext dbContext;
 
         private PortfolioViewModel _viewModel;
 
-        public List<string> Currencies =
-            new List<string>() {"Bitcoin", "Ethereum", "Ripple", "Cardano", "Litecoin", "Stellar"};
+        public List<Currency> Currencies =
+            new List<Currency>
+            {
+                new Currency {Name = "Bitcoin", ShortName = "BTC"},
+                new Currency {Name = "Ethereum", ShortName = "ETH"},
+                new Currency {Name = "Ripple", ShortName = "XRP"},
+                new Currency {Name = "Cardano", ShortName = "ADA"},
+                new Currency {Name = "Litecoin", ShortName = "LTC"},
+                new Currency {Name = "Stellar", ShortName = "XLM"},
+            };
 
         public PortfolioController(ApplicationDbContext context)
         {
@@ -28,9 +37,11 @@ namespace WorkPanel.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var assets = dbContext.Assets.ToList();
+            
             var investors = await dbContext.Investors.ToListAsync();
-            var totalInvested = investors.Sum(i => i.AmountInvested);            
+            var totalInvested = investors.Sum(i => i.AmountInvested);
+
+            var assets = dbContext.Assets.ToList();
             if (assets.Count == 0)
             {
                 var usdAsset = new Asset
@@ -41,7 +52,7 @@ namespace WorkPanel.Controllers
                     Exposure = totalInvested,
                     Price = 1
                 };
-                assets.Add(usdAsset);
+                dbContext.Assets.Add(usdAsset);
                 dbContext.SaveChanges();
             }
 
@@ -50,7 +61,8 @@ namespace WorkPanel.Controllers
                 Assets = assets,
                 NetAssetValue = assets.Sum(a => a.Exposure),
                 Acquisition = totalInvested,
-                Currencies = Currencies
+                Currencies = Currencies,
+                HasBtc = assets.Exists(item=>item.ShortName == "BTC")
             };
 
 
@@ -60,6 +72,38 @@ namespace WorkPanel.Controllers
         public IActionResult AddAsset()
         {
             return View(_viewModel);
+        }
+
+        [HttpPost]
+        public ActionResult AddAsset(AssetViewModel viewModel)
+        {
+            try
+            {
+                var asset = new Asset();
+                var assets = dbContext.Assets.ToList();
+                if (assets.Exists(a => a.Name == viewModel.Name))
+                {
+                    asset = assets.Find(a => a.Name == viewModel.Name);
+                    asset.Quantity += viewModel.Quantity;
+                }
+                asset = new Asset
+                {
+                    Name = "USD",
+                    ShortName = "USD",
+                    Quantity = 1,
+                    Exposure = 1,
+                    Price = 1
+                };
+                dbContext.Assets.Add(asset);
+                dbContext.SaveChanges();
+                return this.Json(new MetaResponse<object> { StatusCode = 200 });
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return this.Json(new MetaResponse<object> { StatusCode = 200 });
+            }
         }
     }
 }

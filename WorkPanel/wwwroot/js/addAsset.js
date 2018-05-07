@@ -7,11 +7,10 @@ vueObj = new Vue({
     el: '#app',
     data: {
         errors: [],
-        name: "",
+        currency: "",
         date: "",
-        agreement: "",
-        amount: "",
-        shares: "",
+        quantity: "",
+        price: "",
         isUSD: true,
         activeClass: 'active-price',
         notActiveClass: 'not-active-price'
@@ -19,21 +18,17 @@ vueObj = new Vue({
     methods: {
         add() {
             this.errors = [];
-            this.date = $("#datepicker").val();
-            if (this.name === "") this.errors.push("name");
-            if (this.date === "") this.errors.push("date");
-            if (this.agreement === "") this.errors.push("agreement");
-            if (this.amount === "" || this.amount <= 0) this.errors.push("amount");
-            if (this.shares === "" || this.shares <= 0) this.errors.push("shares");
+            this.date = $("#datetimepicker").val();
+            alert(this.date);
+            if (this.currency === "") this.errors.push("currency");
+            if (this.date === "") this.errors.push("date");            
+            if (this.quantity === "" || this.quantity <= 0) this.errors.push("quantity");
+            if (this.price === "" || this.price <= 0) this.errors.push("price");
             if (this.errors.length > 0) return;
             $("#add-button").attr("disabled", "disabled");
-            $.post("/Panel/InsertInvestor",
+            $.post("/Portfolio/AddAsset",
                     {
-                        Name: this.name,
                         Date: this.date,
-                        Agreement: this.agreement,
-                        AmountInvested: this.amount,
-                        SharesReceived: this.shares
                     },
                 function (data) {                        
                         if (data.statusCode === 200) {
