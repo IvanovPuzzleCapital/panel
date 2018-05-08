@@ -34,7 +34,7 @@ vueObj = new Vue({
                     },
                     function(data) {
                         if (data.statusCode === 200) {
-                            setTimeout(function() { window.location.href = "/Panel/Index" }, 500);
+                            setTimeout(function() { window.location.href = "/Portfolio/Index" }, 500);
                         }
                     })
                 .fail(function(xhr, status, error) {

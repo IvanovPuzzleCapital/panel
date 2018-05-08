@@ -76,10 +76,36 @@
             {
                 <tr class="hover-tr">
                     <td><span style="font-weight: bold; font-size: large;">@asset.Name</span></td>
-                    <td><span style="font-size: large;">@asset.Quantity.ToString("n0", new CultureInfo("en-US"))</span> <span style="color: lightgray; font-size: large;">@asset.ShortName</span></td>
-                    <td><span style="color: red; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span><span style="color: red; margin-left: 10px; font-size: small;">-13.76%</span></td>
+                    <td><span style="font-size: large;">@asset.Quantity.ToString("n2", new CultureInfo("en-US"))</span> <span style="color: lightgray; font-size: large;">@asset.ShortName</span></td>
+                    <td>
+                        @{
+                            var percent = (asset.Price - asset.AveragePrice) / asset.Price;
+                        }
+                        @if (percent > 0)
+                        {
+                            <span style="color: #2BBF5C; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span>
+                            <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("N3", new CultureInfo("en-US")))%</span>
+                        }
+                        else
+                        {
+                            <span style="color: red; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span>
+                            <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("N3", new CultureInfo("en-US")))%</span>
+                        }
+                    </td>
                     <td><span style="font-size: large;">$@asset.Exposure.ToString("n0", new CultureInfo("en-US"))</span></td>
-                    <td><span style="color: #2BBF5C; font-size: large;">$20,112.80</span><span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+13.76%</span></td>
+                    <td>
+                        @if (percent > 0)
+                        {
+                            <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
+                            <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("N2", new CultureInfo("en-US")))%</span>
+                        }
+                        else
+                        {
+                            <span style="color: red; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
+                            <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("N3", new CultureInfo("en-US")))%</span>
+                        }
+                        
+                    </td>
                     <td style="text-align: end;"><span style="font-size: large;">@((asset.Exposure / Model.NetAssetValue).ToString("P"))</span></td>
                 </tr>
             }

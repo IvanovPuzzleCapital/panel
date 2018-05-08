@@ -4,6 +4,8 @@ namespace WorkPanel.Models.PortfolioViewModels
 {
     public class PortfolioViewModel
     {
+        public Asset UsdAsset { get; set; }
+
         public List<Asset> Assets { get; set; }
 
         public bool HasBtc { get; set; }

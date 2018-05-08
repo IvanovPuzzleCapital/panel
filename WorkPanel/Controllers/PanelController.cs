@@ -30,13 +30,15 @@ namespace WorkPanel.Controllers
         {
             var investors = await dbContext.Investors.OrderBy(s => s.Status).ThenByDescending(s => s.Date).ToListAsync();
             var assets = await dbContext.Assets.ToListAsync();
+
             var viewModel = new PanelViewModel
             {
                 Investors = investors,
                 TotalInvested = investors.Sum(investor => investor.AmountInvested),
-                TotalShares = investors.Sum(investor => investor.SharesReceived),
-                NetAssetValue = assets.Sum(a => a.Exposure)
+                TotalShares = investors.Sum(investor => investor.SharesReceived)
             };
+
+            viewModel.NetAssetValue = assets.Sum(a => a.Exposure) + viewModel.TotalInvested;
 
             return View(viewModel);
         }

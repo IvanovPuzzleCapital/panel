@@ -32,33 +32,41 @@ namespace WorkPanel.Controllers
         {
 
             var investors = await dbContext.Investors.ToListAsync();
-            var totalInvested = investors.Sum(i => i.AmountInvested);
+           
             var currencies = await GetCurrencies(true);
 
             var assets = dbContext.Assets.ToList();
-            if (assets.Count == 0)
+
+            var totalInvested = investors.Sum(i => i.AmountInvested) - assets.Sum(a => a.Quantity * a.PurchasePrice);
+
+            foreach (var asset in assets)
             {
-                var usdAsset = new Asset
-                {
-                    Name = "USD",
-                    ShortName = "USD",
-                    Quantity = totalInvested,
-                    Exposure = totalInvested,
-                    Price = 1
-                };
-                dbContext.Assets.Add(usdAsset);
-                dbContext.SaveChanges();
+                asset.AveragePrice = dbContext.CurrencyRates.Where(c => c.Base == asset.ShortName).Average(c => c.Rate);
             }
 
+            var usdAsset = new Asset
+            {
+                Name = "USD",
+                ShortName = "USD",
+                Quantity = totalInvested,
+                Exposure = totalInvested,
+                Price = 1,
+                AveragePrice = 1,
+                PurchasePrice = 1
+            };
+
+            assets.Add(usdAsset);
+            var sum = assets.Sum(a => a.Exposure);
             _viewModel = new PortfolioViewModel
             {
-                Assets = assets,
-                NetAssetValue = assets.Sum(a => a.Exposure),
+                UsdAsset = usdAsset,
+                Assets = assets.OrderByDescending(a => a.ShortName == "USD").ThenByDescending(a => a.ShortName == "BTC").ThenByDescending(a => a.Exposure / sum).ToList(),
+                NetAssetValue = sum,
                 Acquisition = totalInvested,
                 Currencies = currencies,
                 HasBtc = assets.Exists(item => item.ShortName == "BTC")
             };
-
+            
 
             return View(_viewModel);
         }
@@ -109,7 +117,8 @@ namespace WorkPanel.Controllers
                         ShortName = currency.ShortName,
                         Quantity = viewModel.Quantity,
                         Exposure = rate.Rate * viewModel.Quantity,
-                        Price = rate.Rate
+                        Price = rate.Rate,
+                        PurchasePrice = rate.Rate
                     };
                 }
                 dbContext.Assets.Add(asset);
