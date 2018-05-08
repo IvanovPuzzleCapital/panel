@@ -10,6 +10,10 @@ namespace WorkPanel.Data
 
         public DbSet<Asset> Assets { get; set; }
 
+        public DbSet<Currency> Currencies { get; set; }
+
+        public DbSet<CurrencyRate> CurrencyRates { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

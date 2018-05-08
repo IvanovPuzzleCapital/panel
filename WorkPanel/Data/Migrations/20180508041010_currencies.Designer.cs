@@ -12,9 +12,10 @@ using WorkPanel.Models;
 namespace WorkPanel.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180508041010_currencies")]
+    partial class currencies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -222,24 +223,6 @@ namespace WorkPanel.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Currencies");
-                });
-
-            modelBuilder.Entity("WorkPanel.Models.CurrencyRate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Base");
-
-                    b.Property<DateTime>("Date");
-
-                    b.Property<string>("Quote");
-
-                    b.Property<double>("Rate");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CurrencyRates");
                 });
 
             modelBuilder.Entity("WorkPanel.Models.Investor", b =>

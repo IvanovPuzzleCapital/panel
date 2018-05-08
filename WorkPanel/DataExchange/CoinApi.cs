@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using RestSharp;
 using WorkPanel.Models;
 
-namespace WorkPanel.DataExchange.Responses
+namespace WorkPanel.DataExchange
 {
     public class CoinApi
     {
@@ -21,11 +22,21 @@ namespace WorkPanel.DataExchange.Responses
             var client = new RestClient(endpoint+"/assets");
             var request = new RestRequest(Method.GET);
             request.AddHeader("X-CoinAPI-Key", apiKey);
-            IRestResponse response = await client.ExecuteTaskAsync(request);
-
-
-            return null;
+            var response = await client.ExecuteTaskAsync(request);
+            if (!response.IsSuccessful) return null;
+            var list = JsonConvert.DeserializeObject<List<Currency>>(response.Content);
+            return list;
         }
 
+        public async Task<CurrencyRate> GetCurrencyRateToUsd(string shortName)
+        {            
+            var client = new RestClient(endpoint + "/exchangerate/" + shortName + "/USD");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("X-CoinAPI-Key", apiKey);
+            var response = await client.ExecuteTaskAsync(request);
+            if (!response.IsSuccessful) return null;
+            var rate = JsonConvert.DeserializeObject<CurrencyRate>(response.Content);
+            return rate;
+        }
     }
 }

@@ -14,7 +14,7 @@
             <datalist id="currencies">
                 @foreach (var currency in Model.Currencies)
                 {
-                    <option>@currency</option>
+                    <option>@currency.Name</option>
                 }
             </datalist>
             <span class="text-danger" v-if="errors.includes('currency')">Field is empty</span>

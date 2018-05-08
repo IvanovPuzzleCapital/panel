@@ -35,7 +35,7 @@ namespace WorkPanel
             // Add Database Initializer
             services.AddScoped<IDbInitializer, DbInitializer>();
 
-            //services.AddSingleton<IHostedService, DownloadBackgroundService>();
+            services.AddSingleton<IHostedService, DownloadBackgroundService>();
 
             services.Configure<IdentityOptions>(options =>
             {

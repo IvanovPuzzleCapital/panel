@@ -19,7 +19,6 @@ vueObj = new Vue({
         add() {
             this.errors = [];
             this.date = $("#datetimepicker").val();
-            alert(this.date);
             if (this.currency === "") this.errors.push("currency");
             if (this.date === "") this.errors.push("date");            
             if (this.quantity === "" || this.quantity <= 0) this.errors.push("quantity");
@@ -28,9 +27,12 @@ vueObj = new Vue({
             $("#add-button").attr("disabled", "disabled");
             $.post("/Portfolio/AddAsset",
                     {
+                        Name: this.currency,
                         Date: this.date,
+                        Quantity: this.quantity,
+                        Price: this.price
                     },
-                function (data) {                        
+                    function(data) {
                         if (data.statusCode === 200) {
                             setTimeout(function() { window.location.href = "/Panel/Index" }, 500);
                         }

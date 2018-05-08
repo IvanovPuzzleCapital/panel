@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using WorkPanel.Data;
+using WorkPanel.DataExchange;
 using WorkPanel.Models;
 
 namespace WorkPanel.Services
@@ -25,7 +27,7 @@ namespace WorkPanel.Services
             {
                 await DoWork();
 
-                await Task.Delay(10000, stoppingToken);
+                await Task.Delay(60000 * 30, stoppingToken);
             }
         }
 
@@ -34,17 +36,17 @@ namespace WorkPanel.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var coinApi = new CoinApi();
                 Debug.WriteLine("====================================" + "BACKGROUND TASK EXECUTING" + "====================================");
                 Debug.WriteLine("====================================" + DateTime.Now + "====================================");
-                var inv = new Investor
+                var assets = context.Assets.Where(a => a.Name != "USD").ToList();
+                foreach (var asset in assets)
                 {
-                    Name = DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                    Agreement = "",
-                    AmountInvested = 1000,
-                    SharesReceived = 10
-                };
-                context.Investors.Add(inv);
-                await context.SaveChangesAsync();
+                    var rate = await coinApi.GetCurrencyRateToUsd(asset.ShortName);
+                    asset.Price = rate.Rate;
+                    context.CurrencyRates.Add(rate);
+                }
+                context.SaveChanges();
             }
         }
     }
