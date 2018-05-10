@@ -12,7 +12,10 @@
                 <div class="col-md-3">
                     <div class="row" style="display: ruby">
                         <h1 style="margin-left: -5px;">$<span style="font-weight: bold">@(Model.NetAssetValue.ToString("n0", new CultureInfo("en-US")))</span></h1>
-                        <h3><span style="font-weight: bold; color: #2BBF5C">+5.02%</span></h3>
+                        @{
+                            //var per = 
+                        }
+                        <h3><span style="font-weight: bold; color: #2BBF5C">+@(((Model.Assets.Sum(a=>a.Exposure)- Model.TotalInvested)/Model.TotalInvested).ToString("p", new CultureInfo("en-US")))</span></h3>
                     </div>
                     <div class="row" style="margin-top: -15px;">
                         <h5>Net Asset Value</h5>
@@ -48,7 +51,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">$6,805,936</span></h3>
+                        <h3><span style="font-weight: bold; color: #2BBF5C">$@((Model.NetAssetValue-Model.TotalInvested).ToString("n0", new CultureInfo("en-US")))</span></h3>
                         <h5 style="margin-top: -5px;"><span>Profit/Loss</span></h5>
                     </div>
                 </div>
@@ -75,7 +78,18 @@
             @foreach (var asset in Model.Assets)
             {
                 <tr class="hover-tr">
-                    <td><span style="font-weight: bold; font-size: large;">@asset.Name</span></td>
+                    <td>
+                        @if (asset.Name == "USD")
+                        {
+                            <span style="font-weight: bold; font-size: large;">@asset.Name</span>
+                        }
+                        else
+                        {
+                        <a data-toggle="modal" data-target="#modal-action-info" asp-action="Info" asp-route-id="@asset.Id">
+                            <span style="font-weight: bold; font-size: large;">@asset.Name</span>
+                        </a>
+                        }
+                    </td>
                     <td><span style="font-size: large;">@asset.Quantity.ToString("n2", new CultureInfo("en-US"))</span> <span style="color: lightgray; font-size: large;">@asset.ShortName</span></td>
                     <td>
                         @{
@@ -92,16 +106,16 @@
                             <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("N3", new CultureInfo("en-US")))%</span>
                         }
                     </td>
-                    <td><span style="font-size: large;">$@asset.Exposure.ToString("n0", new CultureInfo("en-US"))</span></td>
+                    <td><span style="font-size: large;">$@asset.Exposure.ToString("n2", new CultureInfo("en-US"))</span></td>
                     <td>
                         @if (percent > 0)
                         {
-                            <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
+                            <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.PurchasePrice).ToString("N2", new CultureInfo("en-US")))</span>
                             <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("N2", new CultureInfo("en-US")))%</span>
                         }
                         else
                         {
-                            <span style="color: red; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
+                            <span style="color: red; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.PurchasePrice).ToString("N2", new CultureInfo("en-US")))</span>
                             <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("N3", new CultureInfo("en-US")))%</span>
                         }
                         
@@ -121,6 +135,13 @@
             <div class="modal-body">
                 @await Html.PartialAsync("AddAsset")
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-action-info" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 400px;">    
+        <div class="modal-content">          
         </div>
     </div>
 </div>

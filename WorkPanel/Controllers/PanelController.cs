@@ -50,21 +50,22 @@ namespace WorkPanel.Controllers
             {
                 var newInvestor = new Investor(viewModel);
                 
-                var assets = dbContext.Assets.ToList();
-                if (assets.Count == 0)
-                {
-                    var usdAsset = new Asset
-                    {
-                        Name = "USD",
-                        ShortName = "USD",
-                        Quantity = newInvestor.AmountInvested,
-                        Exposure = newInvestor.AmountInvested,
-                        Price = 1
-                    };
-                    dbContext.Investors.Add(newInvestor);
-                    dbContext.Assets.Add(usdAsset);
-                    dbContext.SaveChanges();
-                }
+                //var assets = dbContext.Assets.ToList();
+                //if (assets.Count == 0)
+                //{
+                //    //var usdAsset = new Asset
+                //    //{
+                //    //    Name = "USD",
+                //    //    ShortName = "USD",
+                //    //    Quantity = newInvestor.AmountInvested,
+                //    //    Exposure = newInvestor.AmountInvested,
+                //    //    Price = 1
+                //    //};
+                    
+                //    //dbContext.Assets.Add(usdAsset);
+                //    dbContext.SaveChanges();
+                //}
+                dbContext.Investors.Add(newInvestor);
                 dbContext.SaveChanges();
                 return this.Json(new MetaResponse<object> { StatusCode = 200 });
 

@@ -37,7 +37,7 @@ namespace WorkPanel.Controllers
 
             var assets = dbContext.Assets.ToList();
 
-            var totalInvested = investors.Sum(i => i.AmountInvested) - assets.Sum(a => a.Quantity * a.PurchasePrice);
+            var totalInvested = investors.Sum(i => i.AmountInvested);
 
             foreach (var asset in assets)
             {
@@ -48,8 +48,8 @@ namespace WorkPanel.Controllers
             {
                 Name = "USD",
                 ShortName = "USD",
-                Quantity = totalInvested,
-                Exposure = totalInvested,
+                Quantity = totalInvested - assets.Sum(a => a.Quantity * a.PurchasePrice),
+                Exposure = totalInvested - assets.Sum(a => a.Quantity * a.PurchasePrice),
                 Price = 1,
                 AveragePrice = 1,
                 PurchasePrice = 1
@@ -57,12 +57,14 @@ namespace WorkPanel.Controllers
 
             assets.Add(usdAsset);
             var sum = assets.Sum(a => a.Exposure);
+
             _viewModel = new PortfolioViewModel
             {
                 UsdAsset = usdAsset,
                 Assets = assets.OrderByDescending(a => a.ShortName == "USD").ThenByDescending(a => a.ShortName == "BTC").ThenByDescending(a => a.Exposure / sum).ToList(),
                 NetAssetValue = sum,
                 Acquisition = totalInvested,
+                TotalInvested = totalInvested,
                 Currencies = currencies,
                 HasBtc = assets.Exists(item => item.ShortName == "BTC")
             };
@@ -85,6 +87,16 @@ namespace WorkPanel.Controllers
             var currencies = onlyCrypto ? allCurrencies.Where(c => c.IsCrypto).ToList() : allCurrencies.ToList();
 
             return currencies;
+        }
+
+        public IActionResult Info(long? id)
+        {
+            var model = new AssetViewModel();
+            var asset = dbContext.Assets.FirstOrDefault(p => p.Id == id);
+            model.Name = asset.Name;
+            model.ShortName = asset.ShortName;
+            model.Quantity = asset.Quantity;
+            return PartialView("Info", model);
         }
 
         public IActionResult AddAsset()
@@ -118,7 +130,7 @@ namespace WorkPanel.Controllers
                         Quantity = viewModel.Quantity,
                         Exposure = rate.Rate * viewModel.Quantity,
                         Price = rate.Rate,
-                        PurchasePrice = rate.Rate
+                        PurchasePrice = viewModel.Price
                     };
                 }
                 dbContext.Assets.Add(asset);

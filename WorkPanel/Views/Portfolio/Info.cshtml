@@ -1,0 +1,62 @@
+﻿@using System.Globalization
+@using WorkPanel.Models.PortfolioViewModels
+@model AssetViewModel
+<div style="text-align: center;">
+    <h3>@Model.Name</h3>
+</div>
+<div style="text-align: center;">
+    <h4>@Model.Quantity.ToString("n2", new CultureInfo("en-US")) <span style="color: lightgray">@Model.ShortName</span></h4>
+</div>
+<hr />
+<div id="app" class="row">
+    <div class="col-md-9" style="float: none; margin: 0 auto;">
+        @*<form>*@
+        <div class="form-group">
+            <div class="input-group date" id="datetimepicker1">
+                <input id="datetimepicker" type="text" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+            @*<span class="text-danger" v-if="errors.includes('date')">Field is empty</span>*@
+        </div>
+        <div class="form-group">   
+            <div class="input-group">
+                <input class="form-control" type="number" min="1" step="any" placeholder="Sold Quantity" v-model="quantity"/>
+                <span class="input-group-addon">
+                    <span v-bind:class="notActiveClass">ALL</span>
+                </span>
+            </div>
+            
+            @*<span class="text-danger" v-if="errors.includes('quantity')">Field is empty or below zero</span>*@
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="number" class="form-control" placeholder="Sold Price" v-model="price"/>
+                <span class="input-group-addon">
+                    @if (Model.HasBtc)
+                    {
+                        <span v-bind:class="[isUSD ? notActiveClass : activeClass]" v-on:click="togglePrice">BTC</span>
+                        <span v-bind:class="[isUSD ? activeClass : notActiveClass]" v-on:click="togglePrice">USD</span>
+                    }
+                    else
+                    {        
+                        <span v-bind:class="activeClass">USD</span>
+                    }
+                </span>
+            </div>
+            @*<span class="text-danger" v-if="errors.includes('price')">Field is empty or below zero</span>*@
+        </div>
+        <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
+            <input type="submit" value="Add" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" v-on:click="add"/>
+        </div>
+        @*</form>*@ 
+    </div>
+</div>
+
+<script src="~/js/infoAsset.js" asp-append-version="true"></script>
+
+@section Scripts {
+   
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
