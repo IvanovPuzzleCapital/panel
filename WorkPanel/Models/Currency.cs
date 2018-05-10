@@ -14,5 +14,7 @@ namespace WorkPanel.Models
 
         [JsonProperty("type_is_crypto")]
         public bool IsCrypto { get; set; }
+
+        public double Rate { get; set; }
     }
 }

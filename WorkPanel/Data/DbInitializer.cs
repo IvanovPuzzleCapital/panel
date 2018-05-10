@@ -51,6 +51,22 @@ namespace WorkPanel.Data
                     }
                 }
             }
+
+            if (!_context.Assets.Any())
+            {
+                var usdAsset = new Asset
+                {
+                    Name = "USD",
+                    ShortName = "USD",
+                    Quantity = 0,
+                    Exposure = 0,
+                    Price = 1,
+                    PurchasePrice = 1,
+                    PurchaseQuantity = 0
+                };
+                _context.Assets.Add(usdAsset);
+                _context.SaveChanges();
+            }
         }
     }
 }

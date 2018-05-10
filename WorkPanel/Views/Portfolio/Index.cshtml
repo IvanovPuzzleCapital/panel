@@ -98,12 +98,12 @@
                         @if (percent > 0)
                         {
                             <span style="color: #2BBF5C; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span>
-                            <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("N3", new CultureInfo("en-US")))%</span>
+                            <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                         }
                         else
                         {
                             <span style="color: red; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span>
-                            <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("N3", new CultureInfo("en-US")))%</span>
+                            <span style="color: red; margin-left: 10px; font-size: small;">-@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                         }
                     </td>
                     <td><span style="font-size: large;">$@asset.Exposure.ToString("n2", new CultureInfo("en-US"))</span></td>
@@ -111,12 +111,12 @@
                         @if (percent > 0)
                         {
                             <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.PurchasePrice).ToString("N2", new CultureInfo("en-US")))</span>
-                            <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("N2", new CultureInfo("en-US")))%</span>
+                            <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                         }
                         else
                         {
                             <span style="color: red; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.PurchasePrice).ToString("N2", new CultureInfo("en-US")))</span>
-                            <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("N3", new CultureInfo("en-US")))%</span>
+                            <span style="color: red; margin-left: 10px; font-size: small;">-@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                         }
                         
                     </td>

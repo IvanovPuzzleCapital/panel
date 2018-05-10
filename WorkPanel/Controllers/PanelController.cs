@@ -35,10 +35,9 @@ namespace WorkPanel.Controllers
             {
                 Investors = investors,
                 TotalInvested = investors.Sum(investor => investor.AmountInvested),
-                TotalShares = investors.Sum(investor => investor.SharesReceived)
+                TotalShares = investors.Sum(investor => investor.SharesReceived),
+                NetAssetValue = assets.Sum(a => a.Exposure)
             };
-
-            viewModel.NetAssetValue = assets.Sum(a => a.Exposure) + viewModel.TotalInvested;
 
             return View(viewModel);
         }
@@ -48,24 +47,16 @@ namespace WorkPanel.Controllers
         {
             try
             {
-                var newInvestor = new Investor(viewModel);
-                
-                //var assets = dbContext.Assets.ToList();
-                //if (assets.Count == 0)
-                //{
-                //    //var usdAsset = new Asset
-                //    //{
-                //    //    Name = "USD",
-                //    //    ShortName = "USD",
-                //    //    Quantity = newInvestor.AmountInvested,
-                //    //    Exposure = newInvestor.AmountInvested,
-                //    //    Price = 1
-                //    //};
-                    
-                //    //dbContext.Assets.Add(usdAsset);
-                //    dbContext.SaveChanges();
-                //}
-                dbContext.Investors.Add(newInvestor);
+                var investor = new Investor(viewModel);
+                dbContext.Investors.Add(investor);
+                var usd = dbContext.Assets.FirstOrDefault(a => a.Name == "USD");
+                if (usd != null)
+                {
+                    usd.Quantity += investor.AmountInvested;
+                    usd.Exposure += investor.AmountInvested;
+                    usd.PurchaseQuantity += investor.AmountInvested;
+                    dbContext.Assets.Update(usd);
+                }
                 dbContext.SaveChanges();
                 return this.Json(new MetaResponse<object> { StatusCode = 200 });
 
@@ -120,6 +111,15 @@ namespace WorkPanel.Controllers
                     var list = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDeactivateDateList);
                     list.Add(model.DeactivateDate);
                     investor.JsonDeactivateDateList = JsonConvert.SerializeObject(list);
+
+                    var usd = dbContext.Assets.FirstOrDefault(a => a.Name == "USD");
+                    if (usd != null)
+                    {
+                        usd.Quantity -= investor.AmountReturned;
+                        usd.Exposure -= investor.AmountReturned;
+                        dbContext.Assets.Update(usd);
+                    }
+
                     dbContext.SaveChanges();
                 }
                 
@@ -144,6 +144,15 @@ namespace WorkPanel.Controllers
                 var list = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDateList);
                 list.Add(model.Date);
                 investor.JsonDateList = JsonConvert.SerializeObject(list);
+
+                var usd = dbContext.Assets.FirstOrDefault(a => a.Name == "USD");
+                if (usd != null)
+                {
+                    usd.Quantity += investor.AmountInvested;
+                    usd.Exposure += investor.AmountInvested;
+                    dbContext.Assets.Update(usd);
+                }
+
                 dbContext.SaveChanges();
             }
             return RedirectToAction("Index");

@@ -12,9 +12,11 @@ namespace WorkPanel.Models
 
         public double Quantity { get; set; }
 
-        public double PurchasePrice { get; set; }
-
         public double Price { get; set; }
+
+        public double PurchaseQuantity { get; set; }
+
+        public double PurchasePrice { get; set; }
 
         [NotMapped]
         public double AveragePrice { get; set; }
