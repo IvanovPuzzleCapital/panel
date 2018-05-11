@@ -12,9 +12,10 @@ using WorkPanel.Models;
 namespace WorkPanel.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180511082433_rework5")]
+    partial class rework5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,6 +191,8 @@ namespace WorkPanel.Data.Migrations
                     b.Property<string>("Name");
 
                     b.Property<double>("Price");
+
+                    b.Property<double>("PurchasePrice");
 
                     b.Property<double>("Quantity");
 

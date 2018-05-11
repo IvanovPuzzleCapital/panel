@@ -13,9 +13,16 @@
                     <div class="row" style="display: ruby">
                         <h1 style="margin-left: -5px;">$<span style="font-weight: bold">@(Model.NetAssetValue.ToString("n0", new CultureInfo("en-US")))</span></h1>
                         @{
-                            //var per = 
+                            var per = (Model.Assets.Sum(a => a.Exposure) - Model.TotalInvested) / Model.TotalInvested;
                         }
-                        <h3><span style="font-weight: bold; color: #2BBF5C">+@(((Model.Assets.Sum(a=>a.Exposure)- Model.TotalInvested)/Model.TotalInvested).ToString("p", new CultureInfo("en-US")))</span></h3>
+                        @if (per > 0)
+                        {
+                            <h3><span style="font-weight: bold; color: #2BBF5C">+@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
+                        }
+                        else
+                        {
+                            <h3><span style="font-weight: bold; color: red">@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
+                        }
                     </div>
                     <div class="row" style="margin-top: -15px;">
                         <h5>Net Asset Value</h5>
@@ -51,7 +58,17 @@
                 </div>
                 <div class="col-md-4">
                     <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">$@((Model.NetAssetValue-Model.TotalInvested).ToString("n0", new CultureInfo("en-US")))</span></h3>
+                        @{
+                            var profit = Model.NetAssetValue - Model.TotalInvested;
+                        }
+                        @if (profit > 0)
+                        {
+                            <h3><span style="font-weight: bold; color: #2BBF5C">$@(profit.ToString("n0", new CultureInfo("en-US")))</span></h3>
+                        }
+                        else
+                        {
+                            <h3><span style="font-weight: bold; color: red">-$@Math.Abs(profit).ToString("n0", new CultureInfo("en-US"))</span></h3>
+                        }
                         <h5 style="margin-top: -5px;"><span>Profit/Loss</span></h5>
                     </div>
                 </div>
@@ -110,12 +127,12 @@
                     <td>
                         @if (percent > 0)
                         {
-                            <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.PurchasePrice).ToString("N2", new CultureInfo("en-US")))</span>
+                            <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
                             <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                         }
                         else
                         {
-                            <span style="color: red; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.PurchasePrice).ToString("N2", new CultureInfo("en-US")))</span>
+                            <span style="color: red; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
                             <span style="color: red; margin-left: 10px; font-size: small;">-@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                         }
                         

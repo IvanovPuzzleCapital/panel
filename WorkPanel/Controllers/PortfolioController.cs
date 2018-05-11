@@ -35,25 +35,17 @@ namespace WorkPanel.Controllers
            
             var currencies = await GetCurrencies(true);
 
-            var assets = dbContext.Assets
-                .GroupBy(a => a.ShortName)
-                .Select(ca => new Asset
-                {
-                    Name = ca.First().Name,
-                    ShortName = ca.First().ShortName,
-                    Quantity = ca.Sum(c=>c.Quantity),
-                    Exposure = ca.Sum(c => c.Quantity) * ca.First().Price,
-                    Price = ca.First().Price,
-                    AveragePrice = ca.Sum(c=>c.PurchasePrice*c.PurchaseQuantity) / ca.Sum(c=>c.PurchaseQuantity)
-                }).ToList();
-            //currencies.FirstOrDefault(cur=>cur.ShortName == ca.First().ShortName).Rate
-            var totalInvested = investors.Sum(i => i.AmountInvested);
+            var histories = dbContext.AssetHistories.ToList();
 
-            //foreach (var asset in assets)
-            //{
-            //    if (asset.ShortName == "USD") continue;                
-            //    asset.AveragePrice = dbContext.CurrencyRates.Where(c => c.Base == asset.ShortName).Average(c => c.Rate);
-            //}
+            var assets = dbContext.Assets.ToList();
+
+            foreach (var asset in assets.Where(a=>a.ShortName!= "USD"))
+            {
+                var list = histories.Where(hi => hi.Asset == asset && hi.Type == TransactionType.Buy).ToList();
+                asset.AveragePrice = list.Sum(h => h.Price * h.Quantity) / list.Sum(h => h.Quantity);
+            }
+
+            var totalInvested = investors.Sum(i => i.AmountInvested);
            
             var sum = assets.Sum(a => a.Exposure);
 
@@ -114,29 +106,45 @@ namespace WorkPanel.Controllers
 
                 var rate = await GetCurrencyRate(currency);
                 currency.Rate = rate.Rate;
+                dbContext.Currencies.Update(currency);
 
-                var asset = new Asset
+                var asset = dbContext.Assets.FirstOrDefault(a => a.ShortName == currency.ShortName);
+                if (asset != null)
                 {
-                    Name = currency.Name,
-                    ShortName = currency.ShortName,
+                    asset.Quantity += viewModel.Quantity;
+                    asset.Exposure = rate.Rate * asset.Quantity;
+                    dbContext.Assets.Update(asset);
+                }
+                else
+                {
+                    asset = new Asset
+                    {
+                        Name = currency.Name,
+                        ShortName = currency.ShortName,
+                        Quantity = viewModel.Quantity,
+                        Exposure = rate.Rate * viewModel.Quantity,
+                        Price = rate.Rate,
+                    };
+                    dbContext.Assets.Add(asset);
+                }
+
+                var history = new AssetHistory
+                {
                     Quantity = viewModel.Quantity,
-                    Exposure = rate.Rate * viewModel.Quantity,
-                    Price = rate.Rate,
-                    PurchasePrice = viewModel.Price,
-                    PurchaseQuantity = viewModel.Quantity
+                    Asset = asset,
+                    Price = viewModel.Price,
+                    Type = TransactionType.Buy,
+                    Date = viewModel.Date
                 };
+                dbContext.AssetHistories.Add(history);
 
                 var usd = dbContext.Assets.First(a => a.ShortName == "USD");
                 usd.Quantity -= viewModel.Quantity * viewModel.Price;
                 usd.Exposure = usd.Quantity;
-                usd.PurchaseQuantity = usd.Quantity;
-
-                dbContext.Currencies.Update(currency);
                 dbContext.Assets.Update(usd);
-                dbContext.Assets.Add(asset);
+
                 dbContext.SaveChanges();
                 return this.Json(new MetaResponse<object> { StatusCode = 200 });
-
             }
             catch (Exception e)
             {

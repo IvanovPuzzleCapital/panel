@@ -12,9 +12,10 @@ using WorkPanel.Models;
 namespace WorkPanel.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180511075226_rework3")]
+    partial class rework3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -191,6 +192,10 @@ namespace WorkPanel.Data.Migrations
 
                     b.Property<double>("Price");
 
+                    b.Property<double>("PurchasePrice");
+
+                    b.Property<double>("PurchaseQuantity");
+
                     b.Property<double>("Quantity");
 
                     b.Property<string>("ShortName");
@@ -198,28 +203,6 @@ namespace WorkPanel.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Assets");
-                });
-
-            modelBuilder.Entity("WorkPanel.Models.AssetHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("AssetId");
-
-                    b.Property<DateTime>("Date");
-
-                    b.Property<double>("Price");
-
-                    b.Property<double>("Quantity");
-
-                    b.Property<int>("Type");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssetId");
-
-                    b.ToTable("AssetHistories");
                 });
 
             modelBuilder.Entity("WorkPanel.Models.Currency", b =>
@@ -333,13 +316,6 @@ namespace WorkPanel.Data.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("WorkPanel.Models.AssetHistory", b =>
-                {
-                    b.HasOne("WorkPanel.Models.Asset", "Asset")
-                        .WithMany()
-                        .HasForeignKey("AssetId");
                 });
 #pragma warning restore 612, 618
         }

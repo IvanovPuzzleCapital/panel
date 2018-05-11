@@ -53,8 +53,7 @@ namespace WorkPanel.Controllers
                 if (usd != null)
                 {
                     usd.Quantity += investor.AmountInvested;
-                    usd.Exposure += investor.AmountInvested;
-                    usd.PurchaseQuantity += investor.AmountInvested;
+                    usd.Exposure += investor.AmountInvested;                    
                     dbContext.Assets.Update(usd);
                 }
                 dbContext.SaveChanges();
