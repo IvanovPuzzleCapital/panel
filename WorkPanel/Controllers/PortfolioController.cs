@@ -87,6 +87,7 @@ namespace WorkPanel.Controllers
             model.Name = asset.Name;
             model.ShortName = asset.ShortName;
             model.Quantity = asset.Quantity;
+            model.HasBtc = dbContext.Assets.ToList().Exists(item => item.ShortName == "BTC");
             return PartialView("Info", model);
         }
 
@@ -96,17 +97,34 @@ namespace WorkPanel.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddAsset(AssetViewModel viewModel)
+        public async Task<ActionResult> AddAsset([FromBody]AssetViewModel viewModel)
         {
             try
-            {                
+            {          
                 var currency = dbContext.Currencies.FirstOrDefault(cur => cur.Name == viewModel.Name);
-                if (currency == null)
-                    return this.Json(new MetaResponse<object> { StatusCode = 200 });
+                if (currency == null || viewModel.Price <= 0)
+                    return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 1});
 
                 var rate = await GetCurrencyRate(currency);
                 currency.Rate = rate.Rate;
                 dbContext.Currencies.Update(currency);
+
+                var usd = dbContext.Assets.First(a => a.ShortName == "USD");
+
+                Asset btc = null;
+
+                if (viewModel.PurchaseType == PurchaseType.USD)
+                {
+                    if (usd.Quantity - viewModel.Quantity * viewModel.Price < 0)
+                        return this.Json(new MetaResponse<object> {StatusCode = 200, ErrorCode = 2});
+                }
+                else
+                {
+                    
+                    btc = dbContext.Assets.First(a => a.ShortName == "BTC");
+                    if (btc.Quantity - viewModel.Quantity * viewModel.Price < 0)
+                        return this.Json(new MetaResponse<object> {StatusCode = 200, ErrorCode = 2});
+                }
 
                 var asset = dbContext.Assets.FirstOrDefault(a => a.ShortName == currency.ShortName);
                 if (asset != null)
@@ -138,10 +156,18 @@ namespace WorkPanel.Controllers
                 };
                 dbContext.AssetHistories.Add(history);
 
-                var usd = dbContext.Assets.First(a => a.ShortName == "USD");
-                usd.Quantity -= viewModel.Quantity * viewModel.Price;
-                usd.Exposure = usd.Quantity;
-                dbContext.Assets.Update(usd);
+                switch (viewModel.PurchaseType)
+                {
+                    case PurchaseType.USD:
+                        usd.Quantity -= viewModel.Quantity * viewModel.Price;
+                        usd.Exposure = usd.Quantity;
+                        dbContext.Assets.Update(usd);
+                        break;
+                    case PurchaseType.BTC:
+                        btc.Quantity -= viewModel.Quantity * viewModel.Price;
+                        dbContext.Assets.Update(btc);
+                        break;
+                }
 
                 dbContext.SaveChanges();
                 return this.Json(new MetaResponse<object> { StatusCode = 200 });
@@ -151,6 +177,38 @@ namespace WorkPanel.Controllers
                 Console.WriteLine(e);
                 return this.Json(new MetaResponse<object> { StatusCode = 200 });
             }
+        }
+
+        [HttpPost]
+        public ActionResult SellAsset([FromBody]AssetViewModel viewModel)
+        {
+            var asset = dbContext.Assets.FirstOrDefault(a => a.ShortName == viewModel.ShortName);
+            if (asset != null)
+            {
+                switch (viewModel.PurchaseType)
+                {
+                    case PurchaseType.USD:
+                        var usd = dbContext.Assets.FirstOrDefault(a => a.ShortName == "USD");
+                        usd.Quantity += viewModel.Quantity * viewModel.Price;
+                        usd.Exposure += viewModel.Quantity * viewModel.Price;
+                        asset.Quantity -= viewModel.Quantity;
+                        asset.Exposure = asset.Quantity * asset.Price;
+                        dbContext.Assets.Update(usd);
+                        dbContext.Assets.Update(asset);
+                        break;
+                    case PurchaseType.BTC:
+                        var btc = dbContext.Assets.FirstOrDefault(a => a.ShortName == "BTC");
+                        btc.Quantity += viewModel.Quantity * viewModel.Price;
+                        btc.Exposure += viewModel.Quantity * viewModel.Price;
+                        asset.Quantity -= viewModel.Quantity;
+                        asset.Exposure = asset.Quantity * asset.Price;
+                        dbContext.Assets.Update(btc);
+                        dbContext.Assets.Update(asset);
+                        break;
+                }
+                dbContext.SaveChanges();
+            }
+            return RedirectToAction("Index");
         }
 
         private async Task<CurrencyRate> GetCurrencyRate(Currency currency)

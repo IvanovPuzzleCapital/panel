@@ -1,6 +1,7 @@
 ﻿@using System.Globalization
 @using WorkPanel.Models.PortfolioViewModels
 @model AssetViewModel
+@Html.AntiForgeryToken()
 <div style="text-align: center;">
     <h3>@Model.Name</h3>
 </div>
@@ -8,55 +9,120 @@
     <h4>@Model.Quantity.ToString("n2", new CultureInfo("en-US")) <span style="color: lightgray">@Model.ShortName</span></h4>
 </div>
 <hr />
-<div id="app" class="row">
+<div id="app-info" class="row">
     <div class="col-md-9" style="float: none; margin: 0 auto;">
-        @*<form>*@
-        <div class="form-group">
-            <div class="input-group date" id="datetimepicker1">
-                <input id="datetimepicker" type="text" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)" />
-                <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                </span>
+        @*<form asp-route-returnUrl="Portfolio" asp-action="SellAsset" name="sellForm" onsubmit="return validateSelling()" method="post">*@
+            <input id="ShortName" class="form-control" type="hidden" />
+            <input id="PurchaseType" class="form-control" type="hidden" />
+            <div class="form-group">
+                <div class="input-group date" id="datetimepicker-info">
+                    <input id="Date" name="Date" type="text" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+                <span id="sellDateSpan" class="text-danger"></span>
             </div>
-            @*<span class="text-danger" v-if="errors.includes('date')">Field is empty</span>*@
-        </div>
-        <div class="form-group">   
-            <div class="input-group">
-                <input class="form-control" type="number" min="1" step="any" placeholder="Sold Quantity" v-model="quantity"/>
-                <span class="input-group-addon">
-                    <span v-bind:class="notActiveClass">ALL</span>
-                </span>
+            <div class="form-group">
+                <div class="input-group">
+                    <input id="Quantity" class="form-control" type="number" min="0" step="0.01" placeholder="Sold Quantity"/>
+                    <span class="input-group-addon">
+                        <span class="not-active-price">ALL</span>
+                    </span>
+                </div>
+                <span id="sellQuantitySpan" class="text-danger"></span>
             </div>
-            
-            @*<span class="text-danger" v-if="errors.includes('quantity')">Field is empty or below zero</span>*@
-        </div>
-        <div class="form-group">
-            <div class="input-group">
-                <input type="number" class="form-control" placeholder="Sold Price" v-model="price"/>
-                <span class="input-group-addon">
-                    @if (Model.HasBtc)
-                    {
-                        <span v-bind:class="[isUSD ? notActiveClass : activeClass]" v-on:click="togglePrice">BTC</span>
-                        <span v-bind:class="[isUSD ? activeClass : notActiveClass]" v-on:click="togglePrice">USD</span>
-                    }
-                    else
-                    {        
-                        <span v-bind:class="activeClass">USD</span>
-                    }
-                </span>
+            <div class="form-group">
+                <div class="input-group">
+                    <input id="Price" type="number" min="0" step="0.01"  class="form-control" placeholder="Sold Price"/>
+                    <span class="input-group-addon">
+                        @if (Model.HasBtc)
+                        {
+                            <span id="btc-span" class="not-active-price" onclick="togglePrice()">BTC</span>
+                            <span id="usd-span" class="active-price" onclick="togglePrice()">USD</span>
+                        }
+                        else
+                        {
+                            <span class="active-price">USD</span>
+                        }
+                    </span>
+                </div>
+                <span id="sellPriceSpan" class="text-danger"></span>
             </div>
-            @*<span class="text-danger" v-if="errors.includes('price')">Field is empty or below zero</span>*@
-        </div>
-        <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
-            <input type="submit" value="Add" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" v-on:click="add"/>
-        </div>
-        @*</form>*@ 
+            <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
+                <input type="submit" value="Add" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" onclick="validateSelling()"/>
+            </div>
+        @*</form>*@
     </div>
 </div>
 
-<script src="~/js/infoAsset.js" asp-append-version="true"></script>
+<script>
 
-@section Scripts {
-   
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    var isUSD = true;
+
+    $(function() {
+        $('#datetimepicker-info').datetimepicker();
+    });
+
+    function togglePrice() {
+        isUSD = !isUSD;
+        switch (isUSD) {
+            case true:
+                document.getElementById("btc-span").className = "not-active-price";
+                document.getElementById("usd-span").className = "active-price";
+                $("#PurchaseType").val("USD");
+                break;
+            case false:
+                document.getElementById("btc-span").className = "active-price";
+                document.getElementById("usd-span").className = "not-active-price";
+                $("#PurchaseType").val("BTC");
+                break;
+        }
+    }
+
+    function validateSelling() {
+        var errors = 0;
+        $("#sellDateSpan").text("");
+        $("#sellQuantitySpan").text("");
+        $("#sellPriceSpan").text("");
+        var date = $("#Date").val();
+        var quantity = $("#Quantity").val();
+        var price = $("#Price").val();
+        console.log("date - " + date);
+        console.log("quantity - " + quantity);
+        console.log("price - " + price);
+        if (date === "") {
+            errors++;
+            $("#sellDateSpan").text("Empty value");
+        }
+        if (quantity === "" || quantity <= 0) {
+            errors++;
+            $("#sellQuantitySpan").text("Field is empty or below zero");
+        }
+        if (price === "" || price <= 0) {
+            errors++;
+            $("#sellPriceSpan").text("Field is empty or below zero");
+        }
+        if (errors > 0)
+            return false;
+        axios({
+                method: 'post',
+                url: '/Portfolio/SellAsset',
+                data: {
+                    ShortName: $("#ShortName").val(),
+                    Date: date,
+                    Quantity: quantity,
+                    Price: price,
+                    PurchaseType: isUSD ? "USD" : "BTC"
+                }
+            })
+            .then(function(response) {
+                var data = response.data;
+                alert("Success!");
+
+            })
+            .catch(function(error) {
+                $("#add-button").removeAttr("disabled");
+            });
+    }
+</script>
