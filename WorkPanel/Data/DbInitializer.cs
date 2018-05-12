@@ -38,7 +38,7 @@ namespace WorkPanel.Data
             {
                 for (int i = 0; i < 5; i++)
                 {
-                    string userName = "testuser5" + (i + 1);
+                    string userName = "testuser" + (i + 1);
                     string password = "Zaq123456789";
                     var result =
                         _userManager.CreateAsync(
