@@ -41,7 +41,7 @@ namespace WorkPanel.Controllers
 
             foreach (var asset in assets.Where(a=>a.ShortName!= "USD"))
             {
-                var list = histories.Where(hi => hi.Asset == asset && hi.Type == TransactionType.Buy).ToList();
+                var list = histories.Where(hi => hi.ShortName == asset.ShortName && hi.Type == TransactionType.Buy).ToList();
                 asset.AveragePrice = list.Sum(h => h.Price * h.Quantity) / list.Sum(h => h.Quantity);
             }
 
@@ -149,7 +149,7 @@ namespace WorkPanel.Controllers
                 var history = new AssetHistory
                 {
                     Quantity = viewModel.Quantity,
-                    Asset = asset,
+                    ShortName = asset.ShortName,
                     Price = viewModel.Price,
                     Type = TransactionType.Buy,
                     Date = viewModel.Date
@@ -189,26 +189,48 @@ namespace WorkPanel.Controllers
                 {
                     case PurchaseType.USD:
                         var usd = dbContext.Assets.FirstOrDefault(a => a.ShortName == "USD");
+                        if (usd.Quantity - viewModel.Quantity * viewModel.Price < 0)
+                            return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 2 });
                         usd.Quantity += viewModel.Quantity * viewModel.Price;
                         usd.Exposure += viewModel.Quantity * viewModel.Price;
                         asset.Quantity -= viewModel.Quantity;
                         asset.Exposure = asset.Quantity * asset.Price;
                         dbContext.Assets.Update(usd);
-                        dbContext.Assets.Update(asset);
+                        
                         break;
                     case PurchaseType.BTC:
                         var btc = dbContext.Assets.FirstOrDefault(a => a.ShortName == "BTC");
+                        if (btc.Quantity - viewModel.Quantity * viewModel.Price < 0)
+                            return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 2 });
                         btc.Quantity += viewModel.Quantity * viewModel.Price;
                         btc.Exposure += viewModel.Quantity * viewModel.Price;
                         asset.Quantity -= viewModel.Quantity;
                         asset.Exposure = asset.Quantity * asset.Price;
                         dbContext.Assets.Update(btc);
-                        dbContext.Assets.Update(asset);
                         break;
                 }
+                var sellHistory = new AssetHistory
+                {
+                    Quantity = viewModel.Quantity,
+                    ShortName = asset.ShortName,
+                    Date = viewModel.Date,
+                    Price = viewModel.Price,
+                    Type = TransactionType.Sell
+                };
+
+                if (asset.Quantity > 0)
+                {
+                    dbContext.Assets.Update(asset);
+                }
+                else
+                {
+                    dbContext.Assets.Remove(asset);
+                }
+                
+                dbContext.AssetHistories.Add(sellHistory);
                 dbContext.SaveChanges();
             }
-            return RedirectToAction("Index");
+            return this.Json(new MetaResponse<object> { StatusCode = 200 });
         }
 
         private async Task<CurrencyRate> GetCurrencyRate(Currency currency)

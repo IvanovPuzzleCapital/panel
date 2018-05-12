@@ -27,7 +27,7 @@
                 <div class="input-group">
                     <input id="Quantity" class="form-control" type="number" min="0" step="0.01" placeholder="Sold Quantity"/>
                     <span class="input-group-addon">
-                        <span class="not-active-price">ALL</span>
+                        <span class="not-active-price" onclick="sellAll()">ALL</span>
                     </span>
                 </div>
                 <span id="sellQuantitySpan" class="text-danger"></span>
@@ -50,7 +50,9 @@
                 <span id="sellPriceSpan" class="text-danger"></span>
             </div>
             <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
-                <input type="submit" value="Add" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" onclick="validateSelling()"/>
+                <input id="sell-button" type="submit" value="Add" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" onclick="validateSelling()"/>
+                <br />
+                <span id="sellButtonSpan" class="text-danger"></span>
             </div>
         @*</form>*@
     </div>
@@ -59,6 +61,8 @@
 <script>
 
     var isUSD = true;
+
+    var assetName = "@Model.ShortName";
 
     $(function() {
         $('#datetimepicker-info').datetimepicker();
@@ -80,11 +84,17 @@
         }
     }
 
+    function sellAll() {
+        var allQuantity = parseFloat("@Model.Quantity".replace(',', '.'));
+        $("#Quantity").val(allQuantity);
+    }
+
     function validateSelling() {
-        var errors = 0;
+        var errors = 0;        
         $("#sellDateSpan").text("");
         $("#sellQuantitySpan").text("");
         $("#sellPriceSpan").text("");
+        $("#sellButtonSpan").text("");
         var date = $("#Date").val();
         var quantity = $("#Quantity").val();
         var price = $("#Price").val();
@@ -103,13 +113,21 @@
             errors++;
             $("#sellPriceSpan").text("Field is empty or below zero");
         }
+        if (!isUSD && assetName === "BTC") {
+            errors++;
+            $("#sellButtonSpan").text("You can't sell this asset with this type of currency!");
+        }
+
         if (errors > 0)
             return false;
+
+        $("#sell-button").attr("disabled", "disabled");
+
         axios({
                 method: 'post',
                 url: '/Portfolio/SellAsset',
                 data: {
-                    ShortName: $("#ShortName").val(),
+                    ShortName: assetName,
                     Date: date,
                     Quantity: quantity,
                     Price: price,
@@ -118,11 +136,20 @@
             })
             .then(function(response) {
                 var data = response.data;
-                alert("Success!");
-
+                if (data.statusCode === 200) {
+                    switch (data.errorCode) {
+                    case 2:
+                        $("#sellButtonSpan").text("Not enough quantity to sell");
+                        $("#sell-button").removeAttr("disabled");
+                        break;
+                    default:
+                        setTimeout(function() { window.location.href = "/Portfolio/Index" }, 500);
+                        break;
+                    }
+                }
             })
             .catch(function(error) {
-                $("#add-button").removeAttr("disabled");
+                $("#sell-button").removeAttr("disabled");
             });
     }
 </script>

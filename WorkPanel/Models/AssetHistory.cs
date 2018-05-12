@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace WorkPanel.Models
 {
@@ -9,7 +6,7 @@ namespace WorkPanel.Models
     {
         public int Id { get; set; }
 
-        public virtual Asset Asset { get; set; }
+        public string ShortName { get; set; }
 
         public DateTime Date { get; set; }
 
