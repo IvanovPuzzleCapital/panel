@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WorkPanel.Data;
@@ -12,6 +13,7 @@ using WorkPanel.Models.PortfolioViewModels;
 
 namespace WorkPanel.Controllers
 {
+    [Authorize]
     public class PortfolioController : Controller
     {
         private readonly ApplicationDbContext dbContext;
@@ -106,6 +108,8 @@ namespace WorkPanel.Controllers
                     return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 1});
 
                 var rate = await GetCurrencyRate(currency);
+                if (rate == null)
+                    return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 3 });
                 currency.Rate = rate.Rate;
                 dbContext.Currencies.Update(currency);
 
@@ -165,6 +169,7 @@ namespace WorkPanel.Controllers
                         break;
                     case PurchaseType.BTC:
                         btc.Quantity -= viewModel.Quantity * viewModel.Price;
+                        btc.Exposure = btc.Quantity * btc.Price;
                         dbContext.Assets.Update(btc);
                         break;
                 }
@@ -239,6 +244,8 @@ namespace WorkPanel.Controllers
             if (!dbContext.CurrencyRates.Any(cur => cur.Base == currency.ShortName))
             {
                 var rate = await coinApi.GetCurrencyRateToUsd(currency.ShortName);
+                if (rate == null)
+                    return null;               
                 dbContext.CurrencyRates.Add(rate);
                 dbContext.SaveChanges();
             }

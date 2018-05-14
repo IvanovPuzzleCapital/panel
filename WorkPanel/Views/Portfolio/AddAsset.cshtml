@@ -55,6 +55,7 @@
             <span class="text-danger" v-if="errors.includes('not-enough')">Not enough currency to buy this asset!</span>
             <span class="text-danger" v-if="errors.includes('wrong-currency')">You can't buy this asset with this type of currency!</span>
             <span class="text-danger" v-if="errors.includes('not-found')">This currency does not exist</span>
+            <span class="text-danger" v-if="errors.includes('not-found-on-server')">You can't buy this asset right now, sorry</span>
         </div>
         @*</form>*@ 
     </div>

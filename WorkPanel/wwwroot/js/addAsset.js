@@ -41,6 +41,10 @@ vueObj = new Vue({
                     var data = response.data;
                     if (data.statusCode === 200) {
                         switch (data.errorCode) {
+                        case 3:
+                            vueObj.errors.push("not-found-on-server");
+                            $("#add-button").removeAttr("disabled");
+                            break;
                         case 2:
                             vueObj.errors.push("not-enough");
                             $("#add-button").removeAttr("disabled");

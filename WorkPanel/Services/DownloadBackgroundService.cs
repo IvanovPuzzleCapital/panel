@@ -25,20 +25,18 @@ namespace WorkPanel.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await DoWork();
+                await UpdateInfoFromApi();
 
-                await Task.Delay(60000 * 30, stoppingToken);
+                await Task.Delay(60000 * 60, stoppingToken);
             }
         }
 
-        private async Task DoWork()
+        private async Task UpdateInfoFromApi()
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var coinApi = new CoinApi();
-                Debug.WriteLine("====================================" + "BACKGROUND TASK EXECUTING" + "====================================");
-                Debug.WriteLine("====================================" + DateTime.Now + "====================================");
                 var assets = context.Assets.Where(a => a.Name != "USD").GroupBy(al=>al.ShortName).Select(an=>an.First()).ToList();
                 foreach (var asset in assets)
                 {
