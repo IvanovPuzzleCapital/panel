@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace WorkPanel.Models.PanelViewModels
 {
@@ -13,8 +12,7 @@ namespace WorkPanel.Models.PanelViewModels
         public string Name { get; set; }
 
         public DateTime Date { get; set; }
-
-        [Required(ErrorMessage = "Field required")]
+        
         public DateTime DeactivateDate { get; set; }
 
         public List<DateTime> HistoricalDateList { get; set; }
@@ -24,12 +22,20 @@ namespace WorkPanel.Models.PanelViewModels
         public string Agreement { get; set; }
 
         public double AmountInvested { get; set; }
-
-        [Required(ErrorMessage = "Field required")]
+        
         public double AmountReturned { get; set; }
 
         public int SharesReceived { get; set; }
 
         public int SharesBurned { get; set; }
+    }
+
+    public class DeactivateViewModel
+    {
+        public int Id { get; set; }
+
+        public string DeactivateDate { get; set; }
+
+        public double AmountReturned { get; set; }
     }
 }

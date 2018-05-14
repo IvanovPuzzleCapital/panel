@@ -9,8 +9,11 @@
             <input class="form-control" type="text" placeholder="Name" v-model="name"/>
             <span class="text-danger" v-if="errors.includes('name')">Field is empty</span>
         </div>
-        <div class="form-group">                
-            <input id="datepicker" class="form-control" placeholder="Date (DD/MM/YYYY)"/>
+        <div class="form-group input-group date" id="datetimepicker1">
+            <input id="datetimepicker" type="text" class="form-control" placeholder="Date (DD/MM/YYYY)" />
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
             <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
         </div>
         <div class="form-group">                

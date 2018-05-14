@@ -58,8 +58,7 @@ namespace WorkPanel.Data
                 {
                     Name = "USD",
                     ShortName = "USD",
-                    Quantity = 0,
-                    Exposure = 0,
+                    Quantity = 0,                    
                     Price = 1
                 };
                 _context.Assets.Add(usdAsset);

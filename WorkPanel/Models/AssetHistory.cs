@@ -14,9 +14,7 @@ namespace WorkPanel.Models
 
         public double Price { get; set; }
 
-        public double Quantity { get; set; }
-
-        public string PurchasedWith { get; set; }
+        public double Quantity { get; set; }        
 
         public double Rate { get; set; }
     }

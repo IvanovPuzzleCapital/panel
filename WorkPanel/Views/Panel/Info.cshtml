@@ -57,39 +57,45 @@
                 }                          
             </div>
              <div id="deactivate" class="row" style="display: none">
-                <div class="col-md-9" style="float: none; margin: 0 auto;">
-                    <form asp-route-returnUrl="Panel" asp-action="DeactivateInvestor" name="deactivateForm" onsubmit="return validateDeactivation()" method="post">
-                        <div asp-validation-summary="All" class="text-danger"></div>
-                        <input asp-for="Id" class="form-control" type="hidden" />
-                        <div class="form-group">
-                            @*<label asp-for="DeactivateDate"></label>*@
-                            <input id="DeactivateDate" name="DeactivateDate" class="form-control" placeholder="Date (DD/MM/YYYY)" />
-                            <span id="deactivateDateSpan" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            @*<label asp-for="SharesBurned"></label>*@
-                            <input class="form-control" readonly value="@Model.SharesReceived Shares Burned" /> 
-                            @*<span asp-validation-for="SharesBurned" class="text-danger"></span>*@
-                        </div>
-                        <div class="form-group">
-                            @*<label asp-for="AmountReturned"></label>*@
-                            <input id="AmountReturned" name="AmountReturned" type="number" class="form-control" placeholder="Amount Returns"/>
-                            <span id="deactivateAmountSpan" class="text-danger"></span>
-                        </div>
-                        <div style="text-align: center">
-                            <button type="submit" class="btn btn-default" style="color: black; border-radius: 15px; width: 250px;">Deactivate and return</button>
-                        </div>
-                    </form>
-                </div>
+                 <div class="col-md-9" style="float: none; margin: 0 auto;">
+                     <input asp-for="Id" class="form-control" type="hidden" />
+                     @*<div class="form-group">                            
+                         <input id="DeactivateDate" name="DeactivateDate" class="form-control" placeholder="Date (DD/MM/YYYY)" />
+                         <span id="deactivateDateSpan" class="text-danger"></span>
+                     </div>*@
+                     <div class="form-group input-group date" id="datetimepicker2">
+                         <input id="DeactivateDate" type="text" class="form-control" placeholder="Date (DD/MM/YYYY)" />
+                         <span class="input-group-addon">
+                             <span class="glyphicon glyphicon-calendar"></span>
+                         </span>
+                          <span id="deactivateDateSpan" class="text-danger"></span>
+                     </div>
+                     <div class="form-group">                            
+                         <input class="form-control" readonly value="@Model.SharesReceived Shares Burned" />                             
+                     </div>
+                     <div class="form-group">                            
+                         <input id="AmountReturned" name="AmountReturned" type="number" class="form-control" placeholder="Amount Returns"/>
+                         <span id="deactivateAmountSpan" class="text-danger"></span>                            
+                     </div>
+                     <div style="text-align: center">
+                         <button type="submit" class="btn btn-default" style="color: black; border-radius: 15px; width: 250px;" onclick="validateDeactivation()">Deactivate and return</button>
+                     </div>                    
+                 </div>
             </div>
             <div id="activate" class="row" style="display: none">
                 <div class="col-md-9" style="float: none; margin: 0 auto;">
                     <form asp-route-returnUrl="Panel" asp-action="ActivateInvestor" onsubmit="return validateActivation()" method="post">
                         <div asp-validation-summary="All" class="text-danger"></div>
                         <input asp-for="Id" class="form-control" type="hidden" />
-                        <div class="form-group">
-                            @*<label asp-for="DeactivateDate"></label>*@
+                        @*<div class="form-group">                            
                             <input id="Date" name="Date" class="form-control" placeholder="Date (DD/MM/YYYY)" />
+                            <span id="activateDateSpan" class="text-danger"></span>
+                        </div>*@
+                        <div class="form-group input-group date" id="datetimepicker3">
+                            <input id="Date" name="Date" type="text" class="form-control" placeholder="Date (DD/MM/YYYY)" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
                             <span id="activateDateSpan" class="text-danger"></span>
                         </div>
                         <div class="form-group">
@@ -123,9 +129,18 @@
 </div>
 <script>
 
+    //$(function() {
+    //    $("#DeactivateDate").datepicker({ dateFormat: 'dd-mm-yy' });
+    //    $("#Date").datepicker({ dateFormat: 'dd-mm-yy' });
+    //});
+
     $(function() {
-        $("#DeactivateDate").datepicker({ dateFormat: 'dd-mm-yy' });
-        $("#Date").datepicker({ dateFormat: 'dd-mm-yy' });
+        $('#datetimepicker2').datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+        $('#datetimepicker3').datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
     });
 
     function removeConfirm() {
@@ -151,6 +166,7 @@
         var errors = 0;
         $("#deactivateDateSpan").text("");
         $("#deactivateAmountSpan").text("");
+        var id = $("#Id").val();
         var date = $("#DeactivateDate").val();
         var amount = $("#AmountReturned").val();
         console.log("date - " + date);
@@ -164,6 +180,33 @@
         }
         if (errors > 0)
             return false;
+
+        axios({
+                method: 'post',
+                url: '/Panel/DeactivateInvestor',
+                data: {
+                    Id: id,
+                    DeactivateDate: date,
+                    AmountReturned: amount                                       
+                }
+            })
+            .then(function(response) {
+                var data = response.data;
+                if (data.statusCode === 200) {
+                    console.log(data.errorMessage);
+                    switch (data.errorCode) {
+                    case 5:
+                        $("#deactivateAmountSpan").text("Not enough USD to return.");                        
+                        break;
+                    default:
+                        setTimeout(function() { window.location.href = "/Panel/Index" }, 500);
+                        break;
+                    }
+                }
+            })
+            .catch(function(error) {
+               
+            });
     }
 
     function validateActivation() {

@@ -1,24 +1,22 @@
-﻿using System;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WorkPanel.Data;
 using WorkPanel.DataExchange;
-using WorkPanel.Models;
 
 namespace WorkPanel.Services
 {
     public class DownloadBackgroundService : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IConfiguration _configuration;
 
-        public DownloadBackgroundService(IServiceScopeFactory scopeFactory)
+        public DownloadBackgroundService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
         {
             _scopeFactory = scopeFactory;
+            _configuration = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -36,7 +34,7 @@ namespace WorkPanel.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var coinApi = new CoinApi();
+                var coinApi = new CoinApi(_configuration);
                 var assets = context.Assets.Where(a => a.Name != "USD").GroupBy(al=>al.ShortName).Select(an=>an.First()).ToList();
                 foreach (var asset in assets)
                 {

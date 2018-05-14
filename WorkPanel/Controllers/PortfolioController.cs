@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using WorkPanel.Data;
 using WorkPanel.DataExchange;
 using WorkPanel.DataExchange.Responses;
@@ -22,10 +23,10 @@ namespace WorkPanel.Controllers
 
         private readonly CoinApi coinApi;
 
-        public PortfolioController(ApplicationDbContext context)
+        public PortfolioController(ApplicationDbContext context, IConfiguration configuration)
         {
             dbContext = context;
-            coinApi = new CoinApi();
+            coinApi = new CoinApi(configuration);
             ViewBag.Selected = "Portfolio";
             ViewData["Section"] = "Portfolio";
         }
@@ -43,18 +44,20 @@ namespace WorkPanel.Controllers
 
             foreach (var asset in assets.Where(a=>a.ShortName!= "USD"))
             {
-                var list = histories.Where(hi => hi.ShortName == asset.ShortName && hi.Type == TransactionType.Buy).ToList();
-                asset.AveragePrice = list.Sum(h => h.Price * h.Quantity) / list.Sum(h => h.Quantity);
+                var list = histories.Where(hi => hi.ShortName == asset.ShortName && hi.Type == TransactionType.Buy && hi.Date >= asset.Date).ToList();
+                var purchasedSum = list.Sum(h => h.Price * h.Quantity * h.Rate);
+                asset.AveragePrice = purchasedSum / list.Sum(h => h.Quantity);
+                asset.Profit = (asset.Quantity * asset.Price - purchasedSum) / purchasedSum;
             }
 
             var totalInvested = investors.Sum(i => i.AmountInvested);
            
-            var sum = assets.Sum(a => a.Exposure);
+            var sum = assets.Sum(a => a.Price * a.Quantity);
 
             _viewModel = new PortfolioViewModel
             {
                 Assets = assets.OrderByDescending(a => a.ShortName == "USD").ThenByDescending(a => a.ShortName == "BTC")
-                    .ThenByDescending(a => a.Exposure / sum).ToList(),
+                    .ThenByDescending(a => (a.Price * a.Quantity) / sum).ToList(),
                 NetAssetValue = sum,
                 Acquisition = totalInvested,
                 TotalInvested = totalInvested,
@@ -133,8 +136,7 @@ namespace WorkPanel.Controllers
                 var asset = dbContext.Assets.FirstOrDefault(a => a.ShortName == currency.ShortName);
                 if (asset != null)
                 {
-                    asset.Quantity += viewModel.Quantity;
-                    asset.Exposure = rate.Rate * asset.Quantity;
+                    asset.Quantity += viewModel.Quantity;                    
                     dbContext.Assets.Update(asset);
                 }
                 else
@@ -142,9 +144,9 @@ namespace WorkPanel.Controllers
                     asset = new Asset
                     {
                         Name = currency.Name,
+                        Date = viewModel.Date,
                         ShortName = currency.ShortName,
-                        Quantity = viewModel.Quantity,
-                        Exposure = rate.Rate * viewModel.Quantity,
+                        Quantity = viewModel.Quantity,                        
                         Price = rate.Rate,
                     };
                     dbContext.Assets.Add(asset);
@@ -155,6 +157,7 @@ namespace WorkPanel.Controllers
                     Quantity = viewModel.Quantity,
                     ShortName = asset.ShortName,
                     Price = viewModel.Price,
+                    Rate = viewModel.PurchaseType == PurchaseType.USD ? 1 : btc.Price,
                     Type = TransactionType.Buy,
                     Date = viewModel.Date
                 };
@@ -163,13 +166,11 @@ namespace WorkPanel.Controllers
                 switch (viewModel.PurchaseType)
                 {
                     case PurchaseType.USD:
-                        usd.Quantity -= viewModel.Quantity * viewModel.Price;
-                        usd.Exposure = usd.Quantity;
+                        usd.Quantity -= viewModel.Quantity * viewModel.Price;                        
                         dbContext.Assets.Update(usd);
                         break;
                     case PurchaseType.BTC:
-                        btc.Quantity -= viewModel.Quantity * viewModel.Price;
-                        btc.Exposure = btc.Quantity * btc.Price;
+                        btc.Quantity -= viewModel.Quantity * viewModel.Price;                        
                         dbContext.Assets.Update(btc);
                         break;
                 }
@@ -190,6 +191,7 @@ namespace WorkPanel.Controllers
             var asset = dbContext.Assets.FirstOrDefault(a => a.ShortName == viewModel.ShortName);
             if (asset != null)
             {
+                double rate = 1;
                 switch (viewModel.PurchaseType)
                 {
                     case PurchaseType.USD:
@@ -197,29 +199,28 @@ namespace WorkPanel.Controllers
                         if (usd.Quantity - viewModel.Quantity * viewModel.Price < 0)
                             return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 2 });
                         usd.Quantity += viewModel.Quantity * viewModel.Price;
-                        usd.Exposure += viewModel.Quantity * viewModel.Price;
-                        asset.Quantity -= viewModel.Quantity;
-                        asset.Exposure = asset.Quantity * asset.Price;
+                        rate = 1;
                         dbContext.Assets.Update(usd);
-                        
                         break;
                     case PurchaseType.BTC:
                         var btc = dbContext.Assets.FirstOrDefault(a => a.ShortName == "BTC");
                         if (btc.Quantity - viewModel.Quantity * viewModel.Price < 0)
                             return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 2 });
                         btc.Quantity += viewModel.Quantity * viewModel.Price;
-                        btc.Exposure += viewModel.Quantity * viewModel.Price;
-                        asset.Quantity -= viewModel.Quantity;
-                        asset.Exposure = asset.Quantity * asset.Price;
+                        rate = btc.Price;
                         dbContext.Assets.Update(btc);
                         break;
                 }
+
+                asset.Quantity -= viewModel.Quantity;                
+
                 var sellHistory = new AssetHistory
                 {
                     Quantity = viewModel.Quantity,
                     ShortName = asset.ShortName,
                     Date = viewModel.Date,
                     Price = viewModel.Price,
+                    Rate = rate,
                     Type = TransactionType.Sell
                 };
 

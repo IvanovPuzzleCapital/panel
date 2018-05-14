@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RestSharp;
 using WorkPanel.Models;
@@ -8,13 +9,15 @@ namespace WorkPanel.DataExchange
 {
     public class CoinApi
     {
-        private string endpoint = "https://rest.coinapi.io/v1";
+        private const string endpoint = "https://rest.coinapi.io/v1";
 
-        private string apiKey = "AB38DB62-BD91-457B-B508-C49C25CA1951";
+        private readonly string apiKey = "AB38DB62-BD91-457B-B508-C49C25CA1951";
 
-        public CoinApi()
+        public CoinApi(IConfiguration configuration)
         {
-
+            var key = configuration.GetSection("CoinApiKey").Value;
+            if (key != null)
+                apiKey = key;
         }
 
         public async Task<List<Currency>> GetAllAssets()

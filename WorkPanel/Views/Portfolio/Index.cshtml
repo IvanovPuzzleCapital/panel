@@ -10,41 +10,47 @@
         <div class="col-xs-6">
             <div class="row">
                 <div class="col-md-3">
-                    <div class="row" style="display: ruby">
-                        <h1 style="margin-left: -5px;">$<span style="font-weight: bold">@(Model.NetAssetValue.ToString("n0", new CultureInfo("en-US")))</span></h1>
+                    <div class="row" style="">
+                        <h1>$<span style="font-weight: bold">@(Model.NetAssetValue.ToString("n0", new CultureInfo("en-US")))</span></h1>
                         @{
-                            var per = (Model.Assets.Sum(a => a.Exposure) - Model.TotalInvested) / Model.TotalInvested;
-                        }
-                        @if (per > 0)
-                        {
-                            <h3><span style="font-weight: bold; color: #2BBF5C">+@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
-                        }
-                        else
-                        {
-                            <h3><span style="font-weight: bold; color: red">@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
+                            var per = (Model.Assets.Sum(a => a.Price * a.Quantity) - Model.TotalInvested) / Model.TotalInvested;
                         }
                     </div>
                     <div class="row" style="margin-top: -15px;">
                         <h5>Net Asset Value</h5>
                     </div>
                 </div>
+                <div class="col-md-3" style="margin-top: 10px; margin-left: 5px;">
+                     @if (per >= 0)
+                        {
+                            <h3><span style="font-weight: bold; color: #2BBF5C">+@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
+                        }
+                        else if (double.IsNaN(per))
+                        {
+                            
+                        }
+                        else
+                        {
+                            <h3><span style="font-weight: bold; color: red">@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
+                        }
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-4">
                     <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">31.83%</span></h3>
+                        <h3><span style="font-weight: bold; color: #2BBF5C">NOT</span></h3>
                         <h5 style="margin-top: -5px;"><span>1W Change</span></h5>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">219.03%</span></h3>
+                        <h3><span style="font-weight: bold; color: #2BBF5C">YET</span></h3>
                         <h5 style="margin-top: -5px;"><span>1M Change</span></h5>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">527.62%</span></h3>
+                        <h3><span style="font-weight: bold; color: #2BBF5C">READY</span></h3>
                         <h5 style="margin-top: -5px;"><span>3M Change</span></h5>
                     </div>
                 </div>
@@ -61,7 +67,7 @@
                         @{
                             var profit = Model.NetAssetValue - Model.TotalInvested;
                         }
-                        @if (profit > 0)
+                        @if (profit >= 0)
                         {
                             <h3><span style="font-weight: bold; color: #2BBF5C">$@(profit.ToString("n0", new CultureInfo("en-US")))</span></h3>
                         }
@@ -123,21 +129,22 @@
                             <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                         }
                     </td>
-                    <td><span style="font-size: large;">$@asset.Exposure.ToString("n2", new CultureInfo("en-US"))</span></td>
+                    <td><span style="font-size: large;">$@((asset.Price * asset.Quantity).ToString("n2", new CultureInfo("en-US")))</span></td>
                     <td>
-                        @if (percent > 0)
+                        
+                        @if (asset.Profit >= 0)
                         {
                             <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
-                            <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("p2", new CultureInfo("en-US")))</span>
+                            <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(asset.Profit.ToString("p2", new CultureInfo("en-US")))</span>
                         }
                         else
                         {
                             <span style="color: red; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
-                            <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("p2", new CultureInfo("en-US")))</span>
+                            <span style="color: red; margin-left: 10px; font-size: small;">@(asset.Profit.ToString("p2", new CultureInfo("en-US")))</span>
                         }
-                        
+
                     </td>
-                    <td style="text-align: end;"><span style="font-size: large;">@((asset.Exposure / Model.NetAssetValue).ToString("P"))</span></td>
+                    <td style="text-align: end;"><span style="font-size: large;">@((Model.NetAssetValue > 0 ? asset.Price * asset.Quantity / Model.NetAssetValue : 0).ToString("P"))</span></td>
                 </tr>
             }
             </tbody>
@@ -148,7 +155,9 @@
 <div id="add-modal" class="modal fade" role="dialog">
     <div class="modal-dialog" style="width: 400px;">    
         <div class="modal-content">
-            <button type="button" class="close" style="margin: 10px;" data-dismiss="modal">&times;</button>
+            <div style="height:30px; padding: 10px;">
+                <button type="button" class="close" style="margin: 10px;" data-dismiss="modal">&times;</button>
+            </div>
             <div class="modal-body">
                 @await Html.PartialAsync("AddAsset")
             </div>

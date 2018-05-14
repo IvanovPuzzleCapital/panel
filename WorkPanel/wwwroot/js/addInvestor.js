@@ -1,5 +1,10 @@
-﻿$(function() {
-    $("#datepicker").datepicker({ dateFormat: 'dd-mm-yy' });
+﻿//$(function() {
+//    $("#datepicker").datepicker({ dateFormat: 'dd-mm-yy' });
+//});
+$(function() {
+    $('#datetimepicker1').datetimepicker({
+        format: 'DD/MM/YYYY'
+    });
 });
 
 var vueObj;
@@ -16,7 +21,7 @@ vueObj = new Vue({
     methods: {
         add() {
             this.errors = [];
-            this.date = $("#datepicker").val();
+            this.date = $("#datetimepicker").val();
             if (this.name === "") this.errors.push("name");
             if (this.date === "") this.errors.push("date");
             if (this.agreement === "") this.errors.push("agreement");
