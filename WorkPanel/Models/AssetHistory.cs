@@ -10,6 +10,8 @@ namespace WorkPanel.Models
 
         public DateTime Date { get; set; }
 
+        public DateTime RealDate { get; set; }
+
         public TransactionType Type { get; set; }
 
         public double Price { get; set; }

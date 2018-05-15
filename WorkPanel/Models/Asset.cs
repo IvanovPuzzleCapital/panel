@@ -9,6 +9,8 @@ namespace WorkPanel.Models
 
         public DateTime Date { get; set; }
 
+        public DateTime RealDate { get; set; }
+
         public string Name { get; set; }
 
         public string ShortName { get; set; }

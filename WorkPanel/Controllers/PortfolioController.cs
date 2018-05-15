@@ -44,7 +44,7 @@ namespace WorkPanel.Controllers
 
             foreach (var asset in assets.Where(a=>a.ShortName!= "USD"))
             {
-                var list = histories.Where(hi => hi.ShortName == asset.ShortName && hi.Type == TransactionType.Buy && hi.Date >= asset.Date).ToList();
+                var list = histories.Where(hi => hi.ShortName == asset.ShortName && hi.Type == TransactionType.Buy && hi.RealDate >= asset.RealDate).ToList();
                 var purchasedSum = list.Sum(h => h.Price * h.Quantity * h.Rate);
                 asset.AveragePrice = purchasedSum / list.Sum(h => h.Quantity);
                 asset.Profit = (asset.Quantity * asset.Price - purchasedSum) / purchasedSum;
@@ -145,6 +145,7 @@ namespace WorkPanel.Controllers
                     {
                         Name = currency.Name,
                         Date = viewModel.Date,
+                        RealDate = DateTime.Now,
                         ShortName = currency.ShortName,
                         Quantity = viewModel.Quantity,                        
                         Price = rate.Rate,
@@ -159,7 +160,8 @@ namespace WorkPanel.Controllers
                     Price = viewModel.Price,
                     Rate = viewModel.PurchaseType == PurchaseType.USD ? 1 : btc.Price,
                     Type = TransactionType.Buy,
-                    Date = viewModel.Date
+                    Date = viewModel.Date,
+                    RealDate = DateTime.Now
                 };
                 dbContext.AssetHistories.Add(history);
 
@@ -191,21 +193,21 @@ namespace WorkPanel.Controllers
             var asset = dbContext.Assets.FirstOrDefault(a => a.ShortName == viewModel.ShortName);
             if (asset != null)
             {
+                if (asset.Quantity - viewModel.Quantity < 0)
+                    return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 2 });
+
                 double rate = 1;
                 switch (viewModel.PurchaseType)
                 {
                     case PurchaseType.USD:
                         var usd = dbContext.Assets.FirstOrDefault(a => a.ShortName == "USD");
-                        if (usd.Quantity - viewModel.Quantity * viewModel.Price < 0)
-                            return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 2 });
+                        
                         usd.Quantity += viewModel.Quantity * viewModel.Price;
                         rate = 1;
                         dbContext.Assets.Update(usd);
                         break;
                     case PurchaseType.BTC:
                         var btc = dbContext.Assets.FirstOrDefault(a => a.ShortName == "BTC");
-                        if (btc.Quantity - viewModel.Quantity * viewModel.Price < 0)
-                            return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 2 });
                         btc.Quantity += viewModel.Quantity * viewModel.Price;
                         rate = btc.Price;
                         dbContext.Assets.Update(btc);
@@ -219,6 +221,7 @@ namespace WorkPanel.Controllers
                     Quantity = viewModel.Quantity,
                     ShortName = asset.ShortName,
                     Date = viewModel.Date,
+                    RealDate = DateTime.Now,
                     Price = viewModel.Price,
                     Rate = rate,
                     Type = TransactionType.Sell
