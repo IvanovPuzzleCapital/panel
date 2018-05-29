@@ -97,7 +97,7 @@ namespace WorkPanel.Services
                 {
                     var latestNav = navs.Last();
                     var timeDiff = latestNav.Date - DateTime.Now;
-                    if (Math.Abs(timeDiff.Hours) > 3)
+                    if (Math.Abs(timeDiff.Hours) < 3)
                     {
                         return;
                     }
