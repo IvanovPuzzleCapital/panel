@@ -39,7 +39,7 @@
             <div class="input-group">
                 <input id="Price" type="number" min="0" step="0.01"  class="form-control" placeholder="Sold Price"/>
                 <span class="input-group-addon">
-                    @if (Model.HasBtc)
+                    @*@if (Model.HasBtc)
                     {
                         <span id="btc-span" class="not-active-price" onclick="togglePrice()">BTC</span>
                         <span id="usd-span" class="active-price" onclick="togglePrice()">USD</span>
@@ -47,18 +47,21 @@
                     else
                     {
                         <span class="active-price">USD</span>
-                    }
+                    }*@
+                    <span id="btc-span" class="not-active-price" onclick="togglePrice()">BTC</span>
+                    <span id="usd-span" class="active-price" onclick="togglePrice()">USD</span>
                 </span>
             </div>
             <span id="sellPriceSpan" class="text-danger"></span>
         </div>
         @if (Model.HasBtc)
         {
-            <div  id="BTC-price-div" class="form-group" style="display: none;">
-                <input id="BTCPrice" type="number" min="0" step="0.01"  class="form-control" placeholder="BTC Price"/>
-                <span id="sellBTCPriceSpan" class="text-danger"></span>
-            </div>
+           
         }
+        <div  id="BTC-price-div" class="form-group" style="display: none;">
+            <input id="BTCPrice" type="number" min="0" step="0.01"  class="form-control" placeholder="BTC Price"/>
+            <span id="sellBTCPriceSpan" class="text-danger"></span>
+        </div>
         <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
             <input id="sell-button" type="submit" value="Sell" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" onclick="validateSelling()"/>
             <br />
@@ -141,6 +144,10 @@
 
         if (errors > 0)
             return false;
+
+        if (isUSD) {
+            btcPrice = 0;
+        }
 
         $("#sell-button").attr("disabled", "disabled");
 

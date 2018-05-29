@@ -24,5 +24,8 @@ namespace WorkPanel.Models
 
         [NotMapped]
         public double Profit { get; set; }
+
+        [NotMapped]
+        public int PointNumber { get; set; }
     }
 }

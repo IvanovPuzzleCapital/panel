@@ -44,8 +44,36 @@ namespace WorkPanel.Controllers
 
             foreach (var asset in assets.Where(a=>a.ShortName!= "USD"))
             {
-                var list = histories.Where(hi => hi.ShortName == asset.ShortName && hi.Type == TransactionType.Buy && hi.RealDate >= asset.RealDate).ToList();
-                var purchasedSum = list.Sum(h => h.Price * h.Quantity * h.Rate);
+                List<AssetHistory> list;
+                if (asset.ShortName == "BTC")
+                {
+                    list = new List<AssetHistory>();
+                    foreach (var hi in histories)
+                    {
+                        if (hi.ShortName == asset.ShortName && hi.Type == TransactionType.Buy &&
+                            hi.RealDate >= asset.RealDate)
+                            list.Add(hi);
+                        if (hi.Type == TransactionType.Sell && hi.BuyShortName == asset.ShortName &&
+                            hi.RealDate >= asset.RealDate)
+                        {
+                            hi.Quantity = hi.Price * hi.Quantity;
+                            list.Add(hi);
+                        }
+                    }
+                }
+                else
+                    list = histories.Where(hi => hi.ShortName == asset.ShortName && hi.Type == TransactionType.Buy &&
+                                                 hi.RealDate >= asset.RealDate).ToList();
+                double purchasedSum = 0;
+                foreach (var h in list)
+                {
+                    if (h.Type == TransactionType.Buy)
+                        purchasedSum += h.Price * h.Quantity * h.Rate;
+                    else
+                    {
+                        purchasedSum += h.Quantity * h.Rate;
+                    }
+                }
                 asset.AveragePrice = purchasedSum / list.Sum(h => h.Quantity);                
                 asset.Profit = asset.Quantity * asset.Price / (asset.Quantity * asset.AveragePrice) - 1;
             }
@@ -59,15 +87,15 @@ namespace WorkPanel.Controllers
             var navhistory = dbContext.NavHistories.ToList();            
 
             var weekAgo = DateTime.Now - TimeSpan.FromDays(7);
-            var nav1W = navhistory.FirstOrDefault(n => n.Date >= weekAgo);
+            var nav1W = navhistory.FirstOrDefault(n => n.Date <= weekAgo);
             var nav1WValue = nav1W?.Value ?? 0;
 
             var monthAgo = DateTime.Now - TimeSpan.FromDays(30);
-            var nav1M = navhistory.FirstOrDefault(n => n.Date >= monthAgo);
+            var nav1M = navhistory.FirstOrDefault(n => n.Date <= monthAgo);
             var nav1MValue = nav1M?.Value ?? 0;
 
             var month3Ago = DateTime.Now - TimeSpan.FromDays(90);
-            var nav3M = navhistory.FirstOrDefault(n => n.Date >= month3Ago);
+            var nav3M = navhistory.FirstOrDefault(n => n.Date <= month3Ago);
             var nav3MValue = nav3M?.Value ?? 0;
 
             _viewModel = new PortfolioViewModel
@@ -150,23 +178,33 @@ namespace WorkPanel.Controllers
                 {
                     case PurchaseType.USD:
                         var usd = dbContext.Assets.FirstOrDefault(a => a.ShortName == "USD");
-                        
                         usd.Quantity += viewModel.Quantity * viewModel.Price;
                         rate = 1;
                         dbContext.Assets.Update(usd);
                         break;
                     case PurchaseType.BTC:
-                        AssetViewModel usdViewModel;
-                        usdViewModel = viewModel;
-                        usdViewModel.Name = "Bitcoin";
-                        usdViewModel.ShortName = "BTC";
-                        usdViewModel.Price = usdViewModel.BTCPrice;
-                        usdViewModel.PurchaseType = PurchaseType.USD;
-                        await BuyAsset(usdViewModel);
                         var btc = dbContext.Assets.FirstOrDefault(a => a.ShortName == "BTC");
-                        btc.Quantity += viewModel.Quantity * viewModel.Price;
-                        rate = btc.Price;
-                        dbContext.Assets.Update(btc);
+                        if (btc == null)
+                        {
+                            var btcRate = await GetCurrencyRate(new Currency { ShortName = "BTC" });
+                            btc = new Asset
+                            {
+                                Name = "Bitcoin",
+                                Date = viewModel.Date,
+                                RealDate = DateTime.Now,
+                                ShortName = "BTC",
+                                Quantity = viewModel.Quantity * viewModel.Price,
+                                Price = btcRate.Rate
+                            };
+                            dbContext.Assets.Add(btc);
+                        }
+                        else
+                        {
+                            btc.Quantity += viewModel.Quantity * viewModel.Price;
+                            rate = viewModel.BTCPrice;
+                            dbContext.Assets.Update(btc);
+                        }
+                      
                         break;
                 }
 
@@ -176,10 +214,11 @@ namespace WorkPanel.Controllers
                 {
                     Quantity = viewModel.Quantity,
                     ShortName = asset.ShortName,
+                    BuyShortName = viewModel.PurchaseType == PurchaseType.USD ? "USD" : "BTC",
                     Date = viewModel.Date,
                     RealDate = DateTime.Now,
                     Price = viewModel.Price,
-                    Rate = rate,
+                    Rate = viewModel.PurchaseType == PurchaseType.USD ? rate : viewModel.BTCPrice,
                     Type = TransactionType.Sell
                 };
 
@@ -250,6 +289,7 @@ namespace WorkPanel.Controllers
             {
                 Quantity = viewModel.Quantity,
                 ShortName = asset.ShortName,
+                BuyShortName = "USD",
                 Price = viewModel.Price,
                 Rate = viewModel.PurchaseType == PurchaseType.USD ? 1 : btc.Price,
                 Type = TransactionType.Buy,

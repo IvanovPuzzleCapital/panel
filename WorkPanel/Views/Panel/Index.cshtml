@@ -121,6 +121,12 @@
     </div>
 </div>
 
+<script>
+    $('body').on('hidden.bs.modal', '#modal-action-info', function () {
+        $(this).removeData('bs.modal');
+    });
+</script>
+
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")

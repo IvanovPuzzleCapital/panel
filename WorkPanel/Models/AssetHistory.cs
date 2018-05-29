@@ -8,6 +8,8 @@ namespace WorkPanel.Models
 
         public string ShortName { get; set; }
 
+        public string BuyShortName { get; set; }
+
         public DateTime Date { get; set; }
 
         public DateTime RealDate { get; set; }
