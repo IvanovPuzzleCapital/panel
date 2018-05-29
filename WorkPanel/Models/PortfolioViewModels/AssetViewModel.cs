@@ -14,6 +14,8 @@ namespace WorkPanel.Models.PortfolioViewModels
 
         public double Price { get; set; }
 
+        public double BTCPrice { get; set; }
+
         public bool HasBtc { get; set; }        
 
         public PurchaseType PurchaseType { get; set; }

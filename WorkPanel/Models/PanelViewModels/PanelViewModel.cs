@@ -15,5 +15,7 @@ namespace WorkPanel.Models.PanelViewModels
         public double CurrentShare { get; set; }
 
         public double NetAssetValue { get; set; }
+
+        public double AssetsUnderManagement { get; set; }
     }
 }

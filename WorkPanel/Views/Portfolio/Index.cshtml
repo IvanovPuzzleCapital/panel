@@ -9,52 +9,102 @@
     <div class="row" style="padding: 30px; background: whitesmoke; margin: 0px;">
         <div class="col-xs-6">
             <div class="row">
-                <div class="col-md-3">
-                    <div class="row" style="">
-                        <h1>$<span style="font-weight: bold">@(Model.NetAssetValue.ToString("n0", new CultureInfo("en-US")))</span></h1>
-                        @{
-                            var per = (Model.Assets.Sum(a => a.Price * a.Quantity) - Model.TotalInvested) / Model.TotalInvested;
-                        }
+                <div class="col-md-5">
+                    <div class="row" style="">  
+                        <div style="display: flex">
+                            <h1>$<span style="font-weight: bold">@(Model.AssetsUnderManagement.ToString("n0", new CultureInfo("en-US")))</span></h1>
+                            @{
+                                var per = (Model.Assets.Sum(a => a.Price * a.Quantity) - Model.TotalInvested) / Model.TotalInvested;
+                            }
+                            @if (per >= 0)
+                            {
+                                <h3 style="padding-top: 10px;"><span style="font-weight: bold; color: #2BBF5C">+@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
+                            }
+                            else if (double.IsNaN(per))
+                            {
+
+                            }
+                            else
+                            {
+                                <h3 style="padding-top: 10px;"><span style="font-weight: bold; color: red">@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
+                            }
+                        </div>
                     </div>
                     <div class="row" style="margin-top: -15px;">
-                        <h5>Net Asset Value</h5>
+                        <h5>Current Assets Under Management</h5>
                     </div>
                 </div>
                 <div class="col-md-3" style="margin-top: 10px; margin-left: 5px;">
-                     @if (per >= 0)
-                        {
-                            <h3><span style="font-weight: bold; color: #2BBF5C">+@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
-                        }
-                        else if (double.IsNaN(per))
-                        {
-                            
-                        }
-                        else
-                        {
-                            <h3><span style="font-weight: bold; color: red">@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
-                        }
+                   
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">NOT</span></h3>
-                        <h5 style="margin-top: -5px;"><span>1W Change</span></h5>
+                <div class="col-md-3">
+                    <div class="row" style="">
+                        <h1>$<span style="font-weight: bold">@((Model.NetAssetValue > 0 ? Model.NetAssetValue : 0).ToString("n0", new CultureInfo("en-US")))</span></h1>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">YET</span></h3>
-                        <h5 style="margin-top: -5px;"><span>1M Change</span></h5>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="row">
-                        <h3><span style="font-weight: bold; color: #2BBF5C">READY</span></h3>
-                        <h5 style="margin-top: -5px;"><span>3M Change</span></h5>
+                    <div class="row" style="margin-top: -15px; width: -moz-max-content;">
+                        <h5>Current Net Asset Value</h5>
                     </div>
                 </div>
             </div>
+            @if (!double.IsNaN(Model.NetAssetValue))
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <h3>
+                                @{
+                                    var navPercent = (Model.NetAssetValue - Model.Nav1W) / Model.NetAssetValue;
+                                }
+                                @if (navPercent > 0)
+                                {
+                                    <span style="font-weight: bold; color: #2BBF5C">@(navPercent.ToString("p", new CultureInfo("en-US")))</span>
+                                }
+                                else
+                                {
+                                    <span style="font-weight: bold; color: red">@(navPercent.ToString("p", new CultureInfo("en-US")))</span>
+                                }
+                            </h3>
+                            <h5 style="margin-top: -5px;"><span>1W Change</span></h5>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <h3>
+                                @{
+                                    navPercent = (Model.NetAssetValue - Model.Nav1M) / Model.NetAssetValue;
+                                }
+                                @if (navPercent > 0)
+                                {
+                                    <span style="font-weight: bold; color: #2BBF5C">@(navPercent.ToString("p", new CultureInfo("en-US")))</span>
+                                }
+                                else
+                                {
+                                    <span style="font-weight: bold; color: red">@(navPercent.ToString("p", new CultureInfo("en-US")))</span>
+                                }
+                            </h3>
+                            <h5 style="margin-top: -5px;"><span>1M Change</span></h5>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <h3>
+                                @{
+                                    navPercent = (Model.NetAssetValue - Model.Nav3M) / Model.NetAssetValue;
+                                }
+                                @if (navPercent > 0)
+                                {
+                                    <span style="font-weight: bold; color: #2BBF5C">@(navPercent.ToString("p", new CultureInfo("en-US")))</span>
+                                }
+                                else
+                                {
+                                    <span style="font-weight: bold; color: red">@(navPercent.ToString("p", new CultureInfo("en-US")))</span>
+                                }
+                            </h3>
+                            <h5 style="margin-top: -5px;"><span>3M Change</span></h5>
+                        </div>
+                    </div>
+                </div>
+            }
             <div class="row">
                 <div class="col-md-4">
                     <div class="row">
@@ -65,17 +115,18 @@
                 <div class="col-md-4">
                     <div class="row">
                         @{
-                            var profit = Model.NetAssetValue - Model.TotalInvested;
+                            var profit = Model.AssetsUnderManagement - Model.TotalInvested;
                         }
                         @if (profit >= 0)
                         {
                             <h3><span style="font-weight: bold; color: #2BBF5C">$@(profit.ToString("n0", new CultureInfo("en-US")))</span></h3>
+                            <h5 style="margin-top: -5px;"><span>Profit</span></h5>
                         }
                         else
                         {
                             <h3><span style="font-weight: bold; color: red">-$@Math.Abs(profit).ToString("n0", new CultureInfo("en-US"))</span></h3>
+                            <h5 style="margin-top: -5px;"><span>Loss</span></h5>
                         }
-                        <h5 style="margin-top: -5px;"><span>Profit/Loss</span></h5>
                     </div>
                 </div>
             </div>
@@ -133,7 +184,8 @@
                     <td>
                         
                         @if (asset.Profit >= 0)
-                        {
+                        { 
+
                             <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
                             <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(asset.Profit.ToString("p2", new CultureInfo("en-US")))</span>
                         }
@@ -144,7 +196,7 @@
                         }
 
                     </td>
-                    <td style="text-align: end;"><span style="font-size: large;">@((Model.NetAssetValue > 0 ? asset.Price * asset.Quantity / Model.NetAssetValue : 0).ToString("P"))</span></td>
+                    <td style="text-align: end;"><span style="font-size: large;">@((Model.AssetsUnderManagement > 0 ? asset.Price * asset.Quantity / Model.AssetsUnderManagement : 0).ToString("P"))</span></td>
                 </tr>
             }
             </tbody>

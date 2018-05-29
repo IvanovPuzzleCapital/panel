@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using WorkPanel.Models;
 
 namespace WorkPanel.Data
@@ -25,7 +26,7 @@ namespace WorkPanel.Data
         public async Task Initialize()
         {
             //create database schema if none exists
-            _context.Database.EnsureCreated();
+            _context.Database.Migrate();
 
             //If there is already an Administrator role, abort
             if (!_context.Roles.Any(r => r.Name == "Administrator"))

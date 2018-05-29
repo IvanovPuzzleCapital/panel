@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace WorkPanel.Models
 {
@@ -16,5 +17,7 @@ namespace WorkPanel.Models
         public bool IsCrypto { get; set; }
 
         public double Rate { get; set; }
+        
+        public DateTime Date { get; set; }
     }
 }

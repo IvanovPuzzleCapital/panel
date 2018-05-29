@@ -25,16 +25,26 @@
                 </div>
             </div>
             <div class="col-md-3">
+                @{
+                    var profit = Model.AssetsUnderManagement - Model.TotalInvested;
+                }
                 <div>
-                    <h1>$<span style="font-weight: bold">@((Model.NetAssetValue - Model.TotalInvested).ToString("n0", new CultureInfo("en-US")))</span></h1>
+                    <h1>$<span style="font-weight: bold">@(profit.ToString("n0", new CultureInfo("en-US")))</span></h1>
                 </div>
                 <div>
-                    <h3>Profit</h3>
+                    @if (profit >= 0)
+                    {
+                        <h3>Profit</h3>
+                    }
+                    else
+                    {
+                        <h3>Loss</h3>
+                    }
                 </div>
             </div>
             <div class="col-md-3">
                 <div>
-                    <h1>$<span style="font-weight: bold">@((Model.TotalShares != 0 ? Model.NetAssetValue / Model.TotalShares : 0).ToString("n2", new CultureInfo("en-US")))</span></h1>
+                    <h1>$<span style="font-weight: bold">@((Model.TotalShares != 0 ? Model.NetAssetValue : 0).ToString("n2", new CultureInfo("en-US")))</span></h1>
                 </div>
                 <div>
                     <h3>Current Share Value</h3>
@@ -82,7 +92,7 @@
                         <td>$@item.AmountInvested.ToString("n0", new CultureInfo("en-US"))</td>
                         <td>@item.SharesReceived.ToString("n0", new CultureInfo("en-US"))</td>
                         <td>$@(item.Status==Status.Active ? (item.AmountInvested / item.SharesReceived).ToString("n", new CultureInfo("en-US")):0.ToString())</td>
-                        <td style="text-align: end;">@((item.AmountInvested > 0 ? (Model.NetAssetValue * item.SharesReceived - item.AmountInvested)/item.AmountInvested : 0).ToString("n2"))%</td>                         
+                        <td style="text-align: end;">@((item.AmountInvested > 0 ? (Model.NetAssetValue * item.SharesReceived - item.AmountInvested)/item.AmountInvested : 0).ToString("p"))</td>                         
                     </tr>
                 }
                 </tbody>

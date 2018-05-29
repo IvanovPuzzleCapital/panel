@@ -36,7 +36,8 @@
             <div class="input-group">
                 <input type="number" class="form-control" min="0" step="0.01" placeholder="Initial Price" v-model="price"/>
                 <span class="input-group-addon">
-                    @if (Model.HasBtc)
+                    <span v-bind:class="activeClass">USD</span>
+                    @*@if (Model.HasBtc)
                     {
                         <span v-bind:class="[isUSD ? notActiveClass : activeClass]" v-on:click="togglePrice">BTC</span>
                         <span v-bind:class="[isUSD ? activeClass : notActiveClass]" v-on:click="togglePrice">USD</span>
@@ -44,7 +45,7 @@
                     else
                     {        
                         <span v-bind:class="activeClass">USD</span>
-                    }
+                    }*@
                 </span>
             </div>
             <span class="text-danger" v-if="errors.includes('price')">Field is empty or below zero</span>

@@ -15,48 +15,55 @@
 <div id="app-info" class="row">
     <div class="col-md-9" style="float: none; margin: 0 auto;">
         @*<form asp-route-returnUrl="Portfolio" asp-action="SellAsset" name="sellForm" onsubmit="return validateSelling()" method="post">*@
-            <input id="ShortName" class="form-control" type="hidden" />
-            <input id="PurchaseType" class="form-control" type="hidden" />
-            <div class="form-group">
-                <div class="input-group date" id="datetimepicker-info">
-                    <input id="Date" name="Date" type="text" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)"/>
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                </div>
-                <span id="sellDateSpan" class="text-danger"></span>
+        <input id="ShortName" class="form-control" type="hidden" />
+        <input id="PurchaseType" class="form-control" type="hidden" />
+        <div class="form-group">
+            <div class="input-group date" id="datetimepicker-info">
+                <input id="Date" name="Date" type="text" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)"/>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
             </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <input id="Quantity" class="form-control" type="number" min="0" step="0.01" placeholder="Sold Quantity"/>
-                    <span class="input-group-addon">
-                        <span class="not-active-price" onclick="sellAll()">ALL</span>
-                    </span>
-                </div>
-                <span id="sellQuantitySpan" class="text-danger"></span>
+            <span id="sellDateSpan" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <input id="Quantity" class="form-control" type="number" min="0" step="0.01" placeholder="Sold Quantity"/>
+                <span class="input-group-addon">
+                    <span class="not-active-price" onclick="sellAll()">ALL</span>
+                </span>
             </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <input id="Price" type="number" min="0" step="0.01"  class="form-control" placeholder="Sold Price"/>
-                    <span class="input-group-addon">
-                        @if (Model.HasBtc)
-                        {
-                            <span id="btc-span" class="not-active-price" onclick="togglePrice()">BTC</span>
-                            <span id="usd-span" class="active-price" onclick="togglePrice()">USD</span>
-                        }
-                        else
-                        {
-                            <span class="active-price">USD</span>
-                        }
-                    </span>
-                </div>
-                <span id="sellPriceSpan" class="text-danger"></span>
+            <span id="sellQuantitySpan" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <input id="Price" type="number" min="0" step="0.01"  class="form-control" placeholder="Sold Price"/>
+                <span class="input-group-addon">
+                    @if (Model.HasBtc)
+                    {
+                        <span id="btc-span" class="not-active-price" onclick="togglePrice()">BTC</span>
+                        <span id="usd-span" class="active-price" onclick="togglePrice()">USD</span>
+                    }
+                    else
+                    {
+                        <span class="active-price">USD</span>
+                    }
+                </span>
             </div>
-            <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
-                <input id="sell-button" type="submit" value="Sell" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" onclick="validateSelling()"/>
-                <br />
-                <span id="sellButtonSpan" class="text-danger"></span>
+            <span id="sellPriceSpan" class="text-danger"></span>
+        </div>
+        @if (Model.HasBtc)
+        {
+            <div  id="BTC-price-div" class="form-group" style="display: none;">
+                <input id="BTCPrice" type="number" min="0" step="0.01"  class="form-control" placeholder="BTC Price"/>
+                <span id="sellBTCPriceSpan" class="text-danger"></span>
             </div>
+        }
+        <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
+            <input id="sell-button" type="submit" value="Sell" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" onclick="validateSelling()"/>
+            <br />
+            <span id="sellButtonSpan" class="text-danger"></span>
+        </div>
         @*</form>*@
     </div>
 </div>
@@ -66,6 +73,8 @@
     var isUSD = true;
 
     var assetName = "@Model.ShortName";
+
+    var btcPriceInput = $("#BTC-price-div");
 
     $(function() {
         $('#datetimepicker-info').datetimepicker();
@@ -77,11 +86,13 @@
             case true:
                 document.getElementById("btc-span").className = "not-active-price";
                 document.getElementById("usd-span").className = "active-price";
+                btcPriceInput.hide();
                 $("#PurchaseType").val("USD");
                 break;
             case false:
                 document.getElementById("btc-span").className = "active-price";
                 document.getElementById("usd-span").className = "not-active-price";
+                btcPriceInput.show();
                 $("#PurchaseType").val("BTC");
                 break;
         }
@@ -97,10 +108,12 @@
         $("#sellDateSpan").text("");
         $("#sellQuantitySpan").text("");
         $("#sellPriceSpan").text("");
-        $("#sellButtonSpan").text("");
+        $("#sellButtonSpan").text(""); 
+        $("#sellBTCPriceSpan").text(""); 
         var date = $("#Date").val();
         var quantity = $("#Quantity").val();
         var price = $("#Price").val();
+        var btcPrice = $("#BTCPrice").val();
         console.log("date - " + date);
         console.log("quantity - " + quantity);
         console.log("price - " + price);
@@ -120,6 +133,11 @@
             errors++;
             $("#sellButtonSpan").text("You can't sell this asset with this type of currency!");
         }
+        if (!isUSD && btcPrice <= 0) {
+            errors++;
+            $("#sellBTCPriceSpan").text("Field is empty or below zero");
+        }
+
 
         if (errors > 0)
             return false;
@@ -134,6 +152,7 @@
                     Date: date,
                     Quantity: quantity,
                     Price: price,
+                    BTCPrice: btcPrice,
                     PurchaseType: isUSD ? "USD" : "BTC"
                 }
             })

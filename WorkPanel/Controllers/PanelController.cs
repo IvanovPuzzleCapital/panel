@@ -37,7 +37,8 @@ namespace WorkPanel.Controllers
                 Investors = investors,
                 TotalInvested = investors.Sum(investor => investor.AmountInvested),
                 TotalShares = investors.Sum(investor => investor.SharesReceived),
-                NetAssetValue = assets.Sum(a => a.Price * a.Quantity)
+                AssetsUnderManagement = assets.Sum(a => a.Price * a.Quantity),
+                NetAssetValue = assets.Sum(a => a.Price * a.Quantity) / investors.Sum(investor => investor.SharesReceived)
             };
 
             return View(viewModel);
@@ -49,13 +50,26 @@ namespace WorkPanel.Controllers
             try
             {
                 var investor = new Investor(viewModel);
+                var invCnt = dbContext.Investors.Count();
                 dbContext.Investors.Add(investor);
                 var usd = dbContext.Assets.FirstOrDefault(a => a.Name == "USD");
                 if (usd != null)
                 {
                     usd.Quantity += investor.AmountInvested;                                    
                     dbContext.Assets.Update(usd);
+
+                    if (invCnt == 0)
+                    {
+                        var nav = new NavHistory
+                        {
+                            Date = DateTime.Now,
+                            Value = usd.Quantity / investor.SharesReceived
+                        };
+
+                        dbContext.NavHistories.Add(nav);
+                    }
                 }
+
                 dbContext.SaveChanges();
                 return this.Json(new MetaResponse<object> { StatusCode = 200 });
 
