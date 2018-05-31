@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ namespace WorkPanel.Controllers
         { //todo: разнести все из индекста по секциям
 
             var investors = await dbContext.Investors.ToListAsync();
-           
+
             var currencies = await GetCurrencies(true);
 
             var assets = dbContext.Assets.ToList();
@@ -43,12 +44,12 @@ namespace WorkPanel.Controllers
             CalculateAveragePrices(assets);
 
             var totalInvested = investors.Sum(i => i.AmountInvested);
-           
+
             var sum = assets.Sum(a => a.Price * a.Quantity);
 
             var totalShares = investors.Sum(investor => investor.SharesReceived);
 
-            var navhistory = dbContext.NavHistories.ToList();            
+            var navhistory = dbContext.NavHistories.ToList();
 
             var weekAgo = DateTime.Now - TimeSpan.FromDays(7);
             var nav1W = navhistory.Where(n => n.Date <= weekAgo).OrderByDescending(d => d.Date).FirstOrDefault();
@@ -61,6 +62,8 @@ namespace WorkPanel.Controllers
             var month3Ago = DateTime.Now - TimeSpan.FromDays(90);
             var nav3M = navhistory.Where(n => n.Date <= month3Ago).OrderByDescending(d => d.Date).FirstOrDefault(); ;
             var nav3MValue = nav3M?.Value ?? 0;
+
+            SetChart();
 
             _viewModel = new PortfolioViewModel
             {
@@ -76,9 +79,57 @@ namespace WorkPanel.Controllers
                 Currencies = currencies,
                 HasBtc = assets.Exists(item => item.ShortName == "BTC")
             };
-            
 
             return View(_viewModel);
+        }
+
+        private void SetChart()
+        {
+            var rates = dbContext.CurrencyRates.Where(r => r.Base == "BTC");
+            var values = new List<double>();
+            var dates = new List<string>();
+            foreach (var rate in rates)
+            {
+                dates.Add(rate.Date.ToString("M"));
+                values.Add(rate.Rate);
+            }
+            Chart chart = new Chart();
+
+            chart.Type = "line";
+
+            ChartJSCore.Models.Data data = new ChartJSCore.Models.Data();
+            data.Labels = dates;
+
+            LineDataset dataset = new LineDataset()
+            {
+                Label = "BTC Rate",
+                Data = values,
+                Fill = false.ToString(),
+                LineTension = 0.1,
+                BackgroundColor = "rgba(75, 192, 192, 0.4)",
+                BorderColor = "rgba(75,192,192,1)",
+                BorderCapStyle = "butt",
+                BorderDash = new List<int> { },
+                BorderDashOffset = 0.0,
+                BorderJoinStyle = "miter",
+                PointBorderColor = new List<string>() { "rgba(75,192,192,1)" },
+                PointBackgroundColor = new List<string>() { "#fff" },
+                PointBorderWidth = new List<int> { 1 },
+                PointHoverRadius = new List<int> { 5 },
+                PointHoverBackgroundColor = new List<string>() { "rgba(75,192,192,1)" },
+                PointHoverBorderColor = new List<string>() { "rgba(220,220,220,1)" },
+                PointHoverBorderWidth = new List<int> { 2 },
+                PointRadius = new List<int> { 1 },
+                PointHitRadius = new List<int> { 10 },
+                SpanGaps = false
+            };
+
+            data.Datasets = new List<Dataset>();
+            data.Datasets.Add(dataset);
+
+            chart.Data = data;
+
+            ViewData["chart"] = chart;
         }
 
         [HttpGet]
@@ -220,6 +271,15 @@ namespace WorkPanel.Controllers
         public IActionResult AddAsset()
         {
             return View(_viewModel);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> AutocompleteCurrency(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+                return this.Json(new MetaResponse<object> {StatusCode = 200, ResponseObject = ""});
+            var result = await dbContext.Currencies.Where(c => c.Name.Contains("query")).Take(5).ToListAsync();
+            return this.Json(new MetaResponse<object> { StatusCode = 200 });
         }
 
         [HttpPost]

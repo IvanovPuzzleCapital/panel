@@ -1,102 +1,19 @@
-﻿@using System.Globalization
-@using WorkPanel.Models.PanelViewModels
+﻿@using WorkPanel.Models.PanelViewModels
 @model PanelViewModel
 @{
     ViewData["Title"] = "Panel Page";    
 }
 
 <div>
-    <div style="padding: 30px; background: whitesmoke;">
-        <div class="row">
-            <div class="col-md-3">
-                <div>
-                    <h1>$<span style="font-weight: bold">@Model.TotalInvested.ToString("N0", new CultureInfo("en-US"))</span></h1>
-                </div>
-                <div>
-                    <h3>Total Invested</h3>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div>
-                    <h1><span style="font-weight: bold">@Model.TotalShares.ToString("n0", new CultureInfo("en-US"))</span></h1>
-                </div>
-                <div>
-                    <h3>Total Shares</h3>
-                </div>
-            </div>
-            <div class="col-md-3">
-                @{
-                    var profit = Model.AssetsUnderManagement - Model.TotalInvested;
-                }
-                <div>
-                    <h1>$<span style="font-weight: bold">@(profit.ToString("n0", new CultureInfo("en-US")))</span></h1>
-                </div>
-                <div>
-                    @if (profit >= 0)
-                    {
-                        <h3>Profit</h3>
-                    }
-                    else
-                    {
-                        <h3>Loss</h3>
-                    }
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div>
-                    <h1>$<span style="font-weight: bold">@((Model.TotalShares != 0 ? Model.NetAssetValue : 0).ToString("n2", new CultureInfo("en-US")))</span></h1>
-                </div>
-                <div>
-                    <h3>Current Share Value</h3>
-                </div>
-            </div>
-        </div>
+    <div id="info-section" style="padding: 30px; background: whitesmoke;">
+        @{
+            await Html.RenderPartialAsync("ValuesPanel");
+        }
     </div>
     <br/>
-    <div>
-        @if (Model.Investors.Any())
-        {
-            <table class="table hover-table">
-                <thead>
-                <tr>
-                    <th></th>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Amount Invested</th>
-                    <th>Shares Received</th>
-                    <th>Price per share</th>
-                    <th style="text-align: end;">Return of Investment</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model.Investors)
-                {
-                    <tr class="hover-tr">
-                        <td>
-                            @if (item.Status == Status.Active)
-                            {
-                                <span class="dot-active"></span>
-                            }
-                            else
-                            {
-                                <span class="dot-inactive"></span>
-                            }
-                        </td>
-                        <td>
-                            <a data-toggle="modal" data-target="#modal-action-info" asp-action="Info" asp-route-id= "@item.Id">
-                                @item.Name
-                            </a>
-                            
-                        </td>
-                        <td>@(item.Status==Status.Active ? item.Date.ToShortDateString() : item.DeactivateDate.ToShortDateString())</td>
-                        <td>$@item.AmountInvested.ToString("n0", new CultureInfo("en-US"))</td>
-                        <td>@item.SharesReceived.ToString("n0", new CultureInfo("en-US"))</td>
-                        <td>$@(item.Status==Status.Active ? (item.AmountInvested / item.SharesReceived).ToString("n", new CultureInfo("en-US")):0.ToString())</td>
-                        <td style="text-align: end;">@((item.AmountInvested > 0 ? (Model.NetAssetValue * item.SharesReceived - item.AmountInvested)/item.AmountInvested : 0).ToString("p"))</td>                         
-                    </tr>
-                }
-                </tbody>
-            </table>
+    <div id="investors-div">
+        @{
+            await Html.RenderPartialAsync("Investors");
         }
     </div>
 </div>
@@ -122,11 +39,19 @@
 </div>
 
 <script>
-    $('body').on('hidden.bs.modal', '#modal-action-info', function () {
-        $(this).removeData('bs.modal');
-    });
-</script>
+    $('body').on('hidden.bs.modal',
+        '#modal-action-info',
+        function() {
+            $(this).removeData('bs.modal');
+        });
 
+      function refresh() {
+        $("#investors-div").load('/Panel/Investors');
+        $("#info-section").load('/Panel/ValuesPanel');
+    }
+
+    setInterval(refresh, 15000);
+</script>
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")

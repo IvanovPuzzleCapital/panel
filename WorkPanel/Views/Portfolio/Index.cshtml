@@ -12,7 +12,9 @@
             }
         </div>
         <div class="col-xs-6">
-            <canvas id="myChart" width="400" height="300"></canvas>
+            @*<canvas id="myChart" width="400" height="300"></canvas>*@
+            <div><canvas id="lineChart" width="400" height="300"></canvas></div>
+            @{ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"]; }
         </div>
     </div>
     <br/>
@@ -43,44 +45,21 @@
     </div>
 </div>
 
-<script src="~/lib/chartjs/chart.js"></script>
+
 <script>
-    var ctx = $("#myChart");
-    var myChart = new Chart(ctx,
-        {
-            type: 'line',
-            data: {
-                labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
-                datasets: [
-                    {
-                        label: 'Sample chart',
-                        data: [12, 19, 3, 5, 2, 3, 6, 3, 8, 2, 2, 6, 14, 2, 6, 4, 5, 6, 2, 45, 7, 2],
-
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    yAxes: [
-                        {
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }
-                    ]
-                },
-                animation: {
-                    duration: 0
-                },
-                responsive: true
-            }
-        });
-
+    
     function refresh() {
         $("#assets-div").load('/Portfolio/Assets');
         $("#info-section").load('/Portfolio/InfoSection');
     }
 
-    setInterval(refresh, 15000);    
-    
+    setInterval(refresh, 15000);
+
 </script>
+
+@section Scripts {
+    <script src="~/lib/chartjs/chart.js"></script>
+    <script>
+        @Html.Raw(chart.CreateChartCode("lineChart"));
+    </script>
+}

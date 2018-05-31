@@ -3,6 +3,7 @@
     <script src="~/lib/jquery/dist/jquery.js"></script>    
     <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/lib/vue/dist/vue.js"></script>
+    <script src="~/lib/vue2-autocomplete-js/dist/vue2-autocomplete.js"></script>
     <script src="~/lib/moment/moment.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap-datetimepicker.js"></script>
     <script src="~/lib/axios/dist/axios.min.js"></script>
@@ -13,19 +14,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - WorkPanel</title>
 
-    <environment include="Development">
+    <environment include="Development, Production">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-datetimepicker.min.css" />
         <link rel="stylesheet" href="~/css/site.css" />
-    </environment>
-    <environment exclude="Development">
-        @*<link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />*@
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-datetimepicker.min.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/lib/vue2-autocomplete-js/dist/style/vue2-autocomplete.css" />
     </environment>
 </head>
 
@@ -78,6 +71,13 @@
 <script>
     $('body').on('hidden.bs.modal', '.modal', function () {
         $(this).removeData('bs.modal');
+    });
+
+     // Don't Forget to register it
+    new Vue({
+        components: {
+            autocomplete: Vue2Autocomplete
+        }
     });
 </script>
 

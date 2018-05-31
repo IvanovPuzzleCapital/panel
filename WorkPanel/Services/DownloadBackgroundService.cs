@@ -1,12 +1,15 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using WorkPanel.Data;
 using WorkPanel.DataExchange;
+using WorkPanel.Extensions;
 using WorkPanel.Models;
 
 namespace WorkPanel.Services
@@ -15,11 +18,13 @@ namespace WorkPanel.Services
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IConfiguration _configuration;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public DownloadBackgroundService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
+        public DownloadBackgroundService(IServiceScopeFactory scopeFactory, IConfiguration configuration, ILoggerFactory loggerFactory)
         {
             _scopeFactory = scopeFactory;
             _configuration = configuration;
+            _loggerFactory = loggerFactory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,20 +48,34 @@ namespace WorkPanel.Services
         {
             using (var scope = _scopeFactory.CreateScope())
             {
+                _loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), "logger.txt"));
+                var logger = _loggerFactory.CreateLogger("FileLogger");
+
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var coinApi = new CoinApi(_configuration);
                 var assets = context.Assets.Where(a => a.Name != "USD").GroupBy(al=>al.ShortName).Select(an=>an.First()).ToList();
                 foreach (var asset in assets)
                 {
-                    var rate = await coinApi.GetCurrencyRateToUsd(asset.ShortName);
-                    asset.Price = rate.Rate;
-                    var currency = context.Currencies.FirstOrDefault(c => c.ShortName == asset.ShortName);
-                    if (currency != null)
+                    try
                     {
-                        currency.Rate = rate.Rate;
-                        context.Currencies.Update(currency);
+                        var rate = await coinApi.GetCurrencyRateToUsd(asset.ShortName);
+                        asset.Price = rate.Rate;
+                        var currency = context.Currencies.FirstOrDefault(c => c.ShortName == asset.ShortName);
+                        if (currency != null)
+                        {
+                            currency.Rate = rate.Rate;
+                            context.Currencies.Update(currency);
+                        }
+                        context.CurrencyRates.Add(rate);
+                        logger.LogInformation(String.Format("========= {0} =========== {1} =========", DateTime.Now,
+                            "Update rate for " + currency.ShortName));
                     }
-                    context.CurrencyRates.Add(rate);
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        logger.LogInformation(String.Format("========= {0} =========== {1} =========", DateTime.Now, "Failed to update rates!"));                        
+                    }
+                    
                 }
                 context.SaveChanges();
             }

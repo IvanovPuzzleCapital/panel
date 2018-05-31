@@ -1,4 +1,4 @@
-﻿$(function() {
+﻿$(function () {
     $('#datetimepicker1').datetimepicker();
 });
 
@@ -20,8 +20,8 @@ vueObj = new Vue({
             this.errors = [];
             this.date = $("#datetimepicker").val();
             if (this.currency === "") this.errors.push("currency");
-            if (this.currency === "Bitcoin" && !this.isUSD) this.errors.push("wrong-currency");            
-            if (this.date === "") this.errors.push("date");            
+            if (this.currency === "Bitcoin" && !this.isUSD) this.errors.push("wrong-currency");
+            if (this.date === "") this.errors.push("date");
             if (this.quantity === "" || this.quantity <= 0) this.errors.push("quantity");
             if (this.price === "" || this.price <= 0) this.errors.push("price");
             if (this.errors.length > 0) return;
@@ -37,7 +37,7 @@ vueObj = new Vue({
                         'PurchaseType': this.isUSD ? "USD" : "BTC"
                     }
                 })
-                .then(function (response) {
+                .then(function(response) {
                     var data = response.data;
                     if (data.statusCode === 200) {
                         switch (data.errorCode) {

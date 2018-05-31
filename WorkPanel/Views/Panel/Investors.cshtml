@@ -1,0 +1,47 @@
+﻿@using System.Globalization
+@using WorkPanel.Models.PanelViewModels
+@model PanelViewModel   
+@if (Model.Investors.Any())
+{
+    <table class="table hover-table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Amount Invested</th>
+            <th>Shares Received</th>
+            <th>Price per share</th>
+            <th style="text-align: end;">Return of Investment</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.Investors)
+        {
+            <tr class="hover-tr">
+                <td>
+                    @if (item.Status == Status.Active)
+                    {
+                        <span class="dot-active"></span>
+                    }
+                    else
+                    {
+                        <span class="dot-inactive"></span>
+                    }
+                </td>
+                <td>
+                    <a data-toggle="modal" data-target="#modal-action-info" asp-action="Info" asp-route-id="@item.Id">
+                        @item.Name
+                    </a>
+
+                </td>
+                <td>@(item.Status == Status.Active ? item.Date.ToShortDateString() : item.DeactivateDate.ToShortDateString())</td>
+                <td>$@item.AmountInvested.ToString("n0", new CultureInfo("en-US"))</td>
+                <td>@item.SharesReceived.ToString("n0", new CultureInfo("en-US"))</td>
+                <td>$@(item.Status == Status.Active ? (item.AmountInvested / item.SharesReceived).ToString("n", new CultureInfo("en-US")) : 0.ToString())</td>
+                <td style="text-align: end;">@((item.AmountInvested > 0 ? (Model.NetAssetValue * item.SharesReceived - item.AmountInvested) / item.AmountInvested : 0).ToString("p"))</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

@@ -44,6 +44,39 @@ namespace WorkPanel.Controllers
             return View(viewModel);
         }
 
+        public async Task<IActionResult> ValuesPanel()
+        {
+            var investors = await dbContext.Investors.OrderBy(s => s.Status).ThenByDescending(s => s.Date).ToListAsync();
+            var assets = await dbContext.Assets.ToListAsync();
+
+            var viewModel = new PanelViewModel
+            {
+                Investors = investors,
+                TotalInvested = investors.Sum(investor => investor.AmountInvested),
+                TotalShares = investors.Sum(investor => investor.SharesReceived),
+                AssetsUnderManagement = assets.Sum(a => a.Price * a.Quantity),
+                NetAssetValue = assets.Sum(a => a.Price * a.Quantity) / investors.Sum(investor => investor.SharesReceived)
+            };
+            return PartialView(viewModel);
+        }
+
+        public async Task<IActionResult> Investors()
+        {
+            var investors = await dbContext.Investors.OrderBy(s => s.Status).ThenByDescending(s => s.Date).ToListAsync();
+            var assets = await dbContext.Assets.ToListAsync();
+
+            var viewModel = new PanelViewModel
+            {
+                Investors = investors,
+                TotalInvested = investors.Sum(investor => investor.AmountInvested),
+                TotalShares = investors.Sum(investor => investor.SharesReceived),
+                AssetsUnderManagement = assets.Sum(a => a.Price * a.Quantity),
+                NetAssetValue = assets.Sum(a => a.Price * a.Quantity) / investors.Sum(investor => investor.SharesReceived)
+            };
+            return PartialView(viewModel);
+        }
+
+
         [HttpPost]
         public ActionResult InsertInvestor(InvestorViewModel viewModel)
         {
