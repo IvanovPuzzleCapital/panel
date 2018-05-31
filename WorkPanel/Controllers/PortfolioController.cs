@@ -32,17 +32,124 @@ namespace WorkPanel.Controllers
         }
 
         public async Task<IActionResult> Index()
-        {
+        { //todo: разнести все из индекста по секциям
 
             var investors = await dbContext.Investors.ToListAsync();
            
             var currencies = await GetCurrencies(true);
 
-            var histories = dbContext.AssetHistories.ToList();
+            var assets = dbContext.Assets.ToList();
+
+            CalculateAveragePrices(assets);
+
+            var totalInvested = investors.Sum(i => i.AmountInvested);
+           
+            var sum = assets.Sum(a => a.Price * a.Quantity);
+
+            var totalShares = investors.Sum(investor => investor.SharesReceived);
+
+            var navhistory = dbContext.NavHistories.ToList();            
+
+            var weekAgo = DateTime.Now - TimeSpan.FromDays(7);
+            var nav1W = navhistory.Where(n => n.Date <= weekAgo).OrderByDescending(d => d.Date).FirstOrDefault();
+            var nav1WValue = nav1W?.Value ?? 0;
+
+            var monthAgo = DateTime.Now - TimeSpan.FromDays(30);
+            var nav1M = navhistory.Where(n => n.Date <= monthAgo).OrderByDescending(d => d.Date).FirstOrDefault(); ;
+            var nav1MValue = nav1M?.Value ?? 0;
+
+            var month3Ago = DateTime.Now - TimeSpan.FromDays(90);
+            var nav3M = navhistory.Where(n => n.Date <= month3Ago).OrderByDescending(d => d.Date).FirstOrDefault(); ;
+            var nav3MValue = nav3M?.Value ?? 0;
+
+            _viewModel = new PortfolioViewModel
+            {
+                Assets = assets.OrderByDescending(a => a.ShortName == "USD").ThenByDescending(a => a.ShortName == "BTC")
+                    .ThenByDescending(a => (a.Price * a.Quantity) / sum).ToList(),
+                AssetsUnderManagement = sum,
+                Acquisition = totalInvested,
+                TotalInvested = totalInvested,
+                NetAssetValue = sum / totalShares,
+                Nav1W = nav1WValue,
+                Nav1M = nav1MValue,
+                Nav3M = nav3MValue,
+                Currencies = currencies,
+                HasBtc = assets.Exists(item => item.ShortName == "BTC")
+            };
+            
+
+            return View(_viewModel);
+        }
+
+        public async Task<IActionResult> Assets()
+        {
+            var assets = dbContext.Assets.ToList();
+
+            CalculateAveragePrices(assets);
+
+            var sum = assets.Sum(a => a.Price * a.Quantity);
+
+            _viewModel = new PortfolioViewModel
+            {
+                Assets = assets.OrderByDescending(a => a.ShortName == "USD").ThenByDescending(a => a.ShortName == "BTC")
+                   .ThenByDescending(a => (a.Price * a.Quantity) / sum).ToList(),
+                AssetsUnderManagement = sum,
+                HasBtc = assets.Exists(item => item.ShortName == "BTC")
+            };
+
+            return PartialView(_viewModel);
+        }
+
+        public async Task<IActionResult> NavSection()
+        {
+            var investors = await dbContext.Investors.ToListAsync();
+
+            var currencies = await GetCurrencies(true);
 
             var assets = dbContext.Assets.ToList();
 
-            foreach (var asset in assets.Where(a=>a.ShortName!= "USD"))
+            //CalculateAveragePrices(assets);
+
+            var totalInvested = investors.Sum(i => i.AmountInvested);
+
+            var sum = assets.Sum(a => a.Price * a.Quantity);
+
+            var totalShares = investors.Sum(investor => investor.SharesReceived);
+
+            var navhistory = dbContext.NavHistories.ToList();
+
+            var weekAgo = DateTime.Now - TimeSpan.FromDays(7);
+            var nav1W = navhistory.FirstOrDefault(n => n.Date <= weekAgo);
+            var nav1WValue = nav1W?.Value ?? 0;
+
+            var monthAgo = DateTime.Now - TimeSpan.FromDays(30);
+            var nav1M = navhistory.FirstOrDefault(n => n.Date <= monthAgo);
+            var nav1MValue = nav1M?.Value ?? 0;
+
+            var month3Ago = DateTime.Now - TimeSpan.FromDays(90);
+            var nav3M = navhistory.FirstOrDefault(n => n.Date <= month3Ago);
+            var nav3MValue = nav3M?.Value ?? 0;
+
+            _viewModel = new PortfolioViewModel
+            {
+                AssetsUnderManagement = sum,
+                Acquisition = totalInvested,
+                TotalInvested = totalInvested,
+                NetAssetValue = sum / totalShares,
+                Nav1W = nav1WValue,
+                Nav1M = nav1MValue,
+                Nav3M = nav3MValue,
+                Currencies = currencies,
+                HasBtc = assets.Exists(item => item.ShortName == "BTC")
+            };
+
+            return PartialView(_viewModel);
+        }
+
+        private void CalculateAveragePrices(List<Asset> assets)
+        {
+            var histories = dbContext.AssetHistories.ToList();
+            foreach (var asset in assets.Where(a => a.ShortName != "USD"))
             {
                 List<AssetHistory> list;
                 if (asset.ShortName == "BTC")
@@ -74,47 +181,9 @@ namespace WorkPanel.Controllers
                         purchasedSum += h.Quantity * h.Rate;
                     }
                 }
-                asset.AveragePrice = purchasedSum / list.Sum(h => h.Quantity);                
+                asset.AveragePrice = purchasedSum / list.Sum(h => h.Quantity);
                 asset.Profit = asset.Quantity * asset.Price / (asset.Quantity * asset.AveragePrice) - 1;
             }
-
-            var totalInvested = investors.Sum(i => i.AmountInvested);
-           
-            var sum = assets.Sum(a => a.Price * a.Quantity);
-
-            var totalShares = investors.Sum(investor => investor.SharesReceived);
-
-            var navhistory = dbContext.NavHistories.ToList();            
-
-            var weekAgo = DateTime.Now - TimeSpan.FromDays(7);
-            var nav1W = navhistory.FirstOrDefault(n => n.Date <= weekAgo);
-            var nav1WValue = nav1W?.Value ?? 0;
-
-            var monthAgo = DateTime.Now - TimeSpan.FromDays(30);
-            var nav1M = navhistory.FirstOrDefault(n => n.Date <= monthAgo);
-            var nav1MValue = nav1M?.Value ?? 0;
-
-            var month3Ago = DateTime.Now - TimeSpan.FromDays(90);
-            var nav3M = navhistory.FirstOrDefault(n => n.Date <= month3Ago);
-            var nav3MValue = nav3M?.Value ?? 0;
-
-            _viewModel = new PortfolioViewModel
-            {
-                Assets = assets.OrderByDescending(a => a.ShortName == "USD").ThenByDescending(a => a.ShortName == "BTC")
-                    .ThenByDescending(a => (a.Price * a.Quantity) / sum).ToList(),
-                AssetsUnderManagement = sum,
-                Acquisition = totalInvested,
-                TotalInvested = totalInvested,
-                NetAssetValue = sum / totalShares,
-                Nav1W = nav1WValue,
-                Nav1M = nav1MValue,
-                Nav3M = nav3MValue,
-                Currencies = currencies,
-                HasBtc = assets.Exists(item => item.ShortName == "BTC")
-            };
-            
-
-            return View(_viewModel);
         }
 
         private async Task<List<Currency>> GetCurrencies(bool onlyCrypto)

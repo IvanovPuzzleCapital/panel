@@ -29,8 +29,13 @@ namespace WorkPanel.Services
                 await UpdateInfoFromApi();
                 await UpdateDatabase();
                 await UpdateCurrencyList();
-
-                await Task.Delay(60000 * 60, stoppingToken);
+                int time;
+                var res = int.TryParse(_configuration.GetSection("BackgroundRefreshTime").Value, out time);
+                if (!res)
+                {
+                    time = 60;
+                }
+                await Task.Delay(60000 * time, stoppingToken);
             }
         }
 

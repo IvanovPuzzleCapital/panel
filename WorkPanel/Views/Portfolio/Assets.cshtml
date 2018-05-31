@@ -1,0 +1,69 @@
+﻿@using System.Globalization
+@using WorkPanel.Models.PortfolioViewModels
+@model PortfolioViewModel
+<table class="table hover-table">
+    <thead>
+    <tr>
+        <th>Asset</th>
+        <th>Quantity</th>
+        <th>Price/Price change</th>
+        <th>Exposure</th>
+        <th>Profit/Loss</th>
+        <th style="text-align: end;">Weight, %</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var asset in Model.Assets)
+    {
+        asset.PointNumber = asset.Name == "USD" ? 2 : 4;
+
+        <tr class="hover-tr">
+            <td>
+                @if (asset.Name == "USD")
+                {
+                    <span style="font-weight: bold; font-size: large;">@asset.Name</span>
+                }
+                else
+                {
+                    <a data-toggle="modal" data-target="#modal-action-info" asp-action="Info" asp-route-id="@asset.Id">
+                        <span style="font-weight: bold; font-size: large;">@asset.Name</span>
+                    </a>
+                }
+            </td>
+            <td><span style="font-size: large;">@asset.Quantity.ToString("n"+asset.PointNumber, new CultureInfo("en-US"))</span> <span style="color: lightgray; font-size: large;">@asset.ShortName</span></td>
+            <td>
+                @{
+                    var percent = (asset.Price - asset.AveragePrice) / asset.Price;
+                }
+                @if (percent > 0)
+                {
+                    <span style="color: #2BBF5C; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span>
+                    <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("p2", new CultureInfo("en-US")))</span>
+                }
+                else
+                {
+                    <span style="color: red; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span>
+                    <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("p2", new CultureInfo("en-US")))</span>
+                }
+            </td>
+            <td><span style="font-size: large;">$@((asset.Price * asset.Quantity).ToString("n2", new CultureInfo("en-US")))</span></td>
+            <td>
+                        
+                @if (asset.Profit >= 0)
+                { 
+
+                    <span style="color: #2BBF5C; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
+                    <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(asset.Profit.ToString("p2", new CultureInfo("en-US")))</span>
+                }
+                else
+                {
+                    <span style="color: red; font-size: large;">$@(Math.Abs(asset.Quantity * asset.Price - asset.Quantity * asset.AveragePrice).ToString("N2", new CultureInfo("en-US")))</span>
+                    <span style="color: red; margin-left: 10px; font-size: small;">@(asset.Profit.ToString("p2", new CultureInfo("en-US")))</span>
+                }
+
+            </td>
+            <td style="text-align: end;"><span style="font-size: large;">@((Model.AssetsUnderManagement > 0 ? asset.Price * asset.Quantity / Model.AssetsUnderManagement : 0).ToString("P"))</span></td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -59,16 +59,14 @@
              <div id="deactivate" class="row" style="display: none">
                  <div class="col-md-9" style="float: none; margin: 0 auto;">
                      <input asp-for="Id" class="form-control" type="hidden" />
-                     @*<div class="form-group">                            
-                         <input id="DeactivateDate" name="DeactivateDate" class="form-control" placeholder="Date (DD/MM/YYYY)" />
-                         <span id="deactivateDateSpan" class="text-danger"></span>
-                     </div>*@
-                     <div class="form-group input-group date" id="datetimepicker2">
-                         <input id="DeactivateDate" type="text" class="form-control" placeholder="Date (DD/MM/YYYY)" />
-                         <span class="input-group-addon">
-                             <span class="glyphicon glyphicon-calendar"></span>
-                         </span>
-                          <span id="deactivateDateSpan" class="text-danger"></span>
+                     <div class="form-group">
+                         <div class="input-group date" id="datetimepicker2">
+                             <input id="DeactivateDate" type="text" class="form-control" placeholder="Date (DD/MM/YYYY)" />
+                             <span class="input-group-addon">
+                                 <span class="glyphicon glyphicon-calendar"></span>
+                             </span>
+                         </div>
+                         <span id="deactivateDateSpan" class="text-danger"></span>    
                      </div>
                      <div class="form-group">                            
                          <input class="form-control" readonly value="@Model.SharesReceived Shares Burned" />                             
