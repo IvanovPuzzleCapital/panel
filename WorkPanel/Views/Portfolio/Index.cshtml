@@ -76,14 +76,11 @@
             }
         });
 
-    function refresh1() {
-        $("#assets-div").load('/Portfolio/Assets');        
-    }
-
-    function refresh2() {        
+    function refresh() {
+        $("#assets-div").load('/Portfolio/Assets');
         $("#info-section").load('/Portfolio/InfoSection');
     }
-    setInterval(refresh1, 3000);
-    setInterval(refresh2, 3000);
+
+    setInterval(refresh, 15000);    
     
 </script>
