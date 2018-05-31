@@ -81,6 +81,7 @@ namespace WorkPanel.Controllers
             return View(_viewModel);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Assets()
         {
             var assets = dbContext.Assets.ToList();
@@ -100,7 +101,8 @@ namespace WorkPanel.Controllers
             return PartialView(_viewModel);
         }
 
-        public async Task<IActionResult> NavSection()
+        [HttpGet]
+        public async Task<IActionResult> InfoSection()
         {
             var investors = await dbContext.Investors.ToListAsync();
 
@@ -132,6 +134,8 @@ namespace WorkPanel.Controllers
 
             _viewModel = new PortfolioViewModel
             {
+                Assets = assets.OrderByDescending(a => a.ShortName == "USD").ThenByDescending(a => a.ShortName == "BTC")
+                    .ThenByDescending(a => (a.Price * a.Quantity) / sum).ToList(),
                 AssetsUnderManagement = sum,
                 Acquisition = totalInvested,
                 TotalInvested = totalInvested,

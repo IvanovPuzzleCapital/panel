@@ -5,23 +5,21 @@
 }
 
 <div class="index_body">
-<div class="row" style="padding: 30px; background: whitesmoke; margin: 0px;">
-    <div class="col-xs-6">
-        <div id="nav-section">
-             @{
-            await Html.RenderPartialAsync("NavSection");
-        }
+    <div class="row" style="padding: 30px; background: whitesmoke; margin: 0px;">
+        <div id="info-section" class="col-xs-6">
+            @{
+                await Html.RenderPartialAsync("InfoSection");
+            }
+        </div>
+        <div class="col-xs-6">
+            <canvas id="myChart" width="400" height="300"></canvas>
         </div>
     </div>
-    <div class="col-xs-6">
-        <canvas id="myChart" width="400" height="300"></canvas>
-    </div>
-</div>
-<br/>
+    <br/>
     <div id="assets-div">
-   @{
-       await Html.RenderPartialAsync("Assets");
-   }
+        @{
+            await Html.RenderPartialAsync("Assets");
+        }
     </div>
 </div>
 
@@ -44,8 +42,6 @@
         </div>
     </div>
 </div>
-
-
 
 <script src="~/lib/chartjs/chart.js"></script>
 <script>
@@ -80,10 +76,14 @@
             }
         });
 
-    function refresh() {
-        //$("#assets-div").load('/Portfolio/Assets');
-        $("#nav-section").load('/Portfolio/NavSection');
+    function refresh1() {
+        $("#assets-div").load('/Portfolio/Assets');        
     }
-    setInterval(refresh, 3000);
+
+    function refresh2() {        
+        $("#info-section").load('/Portfolio/InfoSection');
+    }
+    setInterval(refresh1, 3000);
+    setInterval(refresh2, 3000);
     
 </script>
