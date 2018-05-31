@@ -15,8 +15,8 @@
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
-                <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
             </div>
+            <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
         </div>
         <div class="form-group">                
             <input class="form-control" type="text" placeholder="Agreement" v-model="agreement"/>
