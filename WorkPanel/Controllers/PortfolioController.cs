@@ -49,19 +49,7 @@ namespace WorkPanel.Controllers
 
             var totalShares = investors.Sum(investor => investor.SharesReceived);
 
-            var navhistory = dbContext.NavHistories.ToList();
-
-            var weekAgo = DateTime.Now - TimeSpan.FromDays(7);
-            var nav1W = navhistory.Where(n => n.Date <= weekAgo).OrderByDescending(d => d.Date).FirstOrDefault();
-            var nav1WValue = nav1W?.Value ?? 0;
-
-            var monthAgo = DateTime.Now - TimeSpan.FromDays(30);
-            var nav1M = navhistory.Where(n => n.Date <= monthAgo).OrderByDescending(d => d.Date).FirstOrDefault(); ;
-            var nav1MValue = nav1M?.Value ?? 0;
-
-            var month3Ago = DateTime.Now - TimeSpan.FromDays(90);
-            var nav3M = navhistory.Where(n => n.Date <= month3Ago).OrderByDescending(d => d.Date).FirstOrDefault(); ;
-            var nav3MValue = nav3M?.Value ?? 0;
+            CalculateNavPercents(out var nav1WValue, out var nav1MValue, out var nav3MValue);
 
             SetChart();
 
@@ -81,6 +69,20 @@ namespace WorkPanel.Controllers
             };
 
             return View(_viewModel);
+        }
+
+        private void CalculateNavPercents(out double nav1WValue, out double nav1MValue, out double nav3MValue)
+        {
+            var navhistory = dbContext.NavHistories.ToList();
+            var weekAgo = DateTime.Now - TimeSpan.FromDays(7);
+            var nav1W = navhistory.Where(n => n.Date <= weekAgo).OrderByDescending(d => d.Date).FirstOrDefault();
+            nav1WValue = nav1W?.Value ?? 0;
+            var monthAgo = DateTime.Now - TimeSpan.FromDays(30);
+            var nav1M = navhistory.Where(n => n.Date <= monthAgo).OrderByDescending(d => d.Date).FirstOrDefault(); ;
+            nav1MValue = nav1M?.Value ?? 0;
+            var month3Ago = DateTime.Now - TimeSpan.FromDays(90);
+            var nav3M = navhistory.Where(n => n.Date <= month3Ago).OrderByDescending(d => d.Date).FirstOrDefault(); ;
+            nav3MValue = nav3M?.Value ?? 0;
         }
 
         private void SetChart()
@@ -173,19 +175,7 @@ namespace WorkPanel.Controllers
 
             var totalShares = investors.Sum(investor => investor.SharesReceived);
 
-            var navhistory = dbContext.NavHistories.ToList();
-
-            var weekAgo = DateTime.Now - TimeSpan.FromDays(7);
-            var nav1W = navhistory.FirstOrDefault(n => n.Date <= weekAgo);
-            var nav1WValue = nav1W?.Value ?? 0;
-
-            var monthAgo = DateTime.Now - TimeSpan.FromDays(30);
-            var nav1M = navhistory.FirstOrDefault(n => n.Date <= monthAgo);
-            var nav1MValue = nav1M?.Value ?? 0;
-
-            var month3Ago = DateTime.Now - TimeSpan.FromDays(90);
-            var nav3M = navhistory.FirstOrDefault(n => n.Date <= month3Ago);
-            var nav3MValue = nav3M?.Value ?? 0;
+            CalculateNavPercents(out var nav1WValue, out var nav1MValue, out var nav3MValue);
 
             _viewModel = new PortfolioViewModel
             {

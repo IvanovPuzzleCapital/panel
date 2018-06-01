@@ -60,6 +60,7 @@ namespace WorkPanel.Services
                     {
                         var rate = await coinApi.GetCurrencyRateToUsd(asset.ShortName);
                         asset.Price = rate.Rate;
+                        context.Assets.Update(asset);
                         var currency = context.Currencies.FirstOrDefault(c => c.ShortName == asset.ShortName);
                         if (currency != null)
                         {
