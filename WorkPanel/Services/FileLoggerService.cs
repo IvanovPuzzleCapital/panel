@@ -17,12 +17,18 @@ namespace WorkPanel.Services
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
             Func<TState, Exception, string> formatter)
         {
-            if (formatter != null)
+            if (formatter == null) return;
+            lock (_lock)
             {
-                lock (_lock)
+                try
                 {
                     File.AppendAllText(filePath, formatter(state, exception) + Environment.NewLine);
                 }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);                        
+                }
+                    
             }
         }
 

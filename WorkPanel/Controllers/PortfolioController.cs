@@ -88,11 +88,15 @@ namespace WorkPanel.Controllers
             var rates = dbContext.CurrencyRates.Where(r => r.Base == "BTC");
             var values = new List<double>();
             var dates = new List<string>();
+            dates.Add(rates.First().Date.ToString("M"));
             foreach (var rate in rates)
             {
-                dates.Add(rate.Date.ToString("M"));
+                dates.Add("");
                 values.Add(rate.Rate);
             }
+
+            
+            dates.Add(rates.Last().Date.ToString("M"));
             Chart chart = new Chart();
 
             chart.Type = "line";
