@@ -12,10 +12,13 @@
         <div class="form-group">          
             <input class="form-control" type="text" placeholder="Asset Name" list="currencies" v-model="currency" />
             <datalist id="currencies">
-                @foreach (var currency in Model.Currencies)
+                <option>Bitcoin</option>
+                <option>Ethereum</option>
+                <option>Dogecoin</option>
+                @*@foreach (var currency in Model.Currencies)
                 {
                     <option>@currency.Name</option>
-                }
+                }*@
             </datalist>
             <span class="text-danger" v-if="errors.includes('currency')">Field is empty</span>
         </div>

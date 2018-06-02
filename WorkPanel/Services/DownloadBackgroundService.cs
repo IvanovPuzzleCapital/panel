@@ -24,7 +24,7 @@ namespace WorkPanel.Services
         {
             _scopeFactory = scopeFactory;
             _configuration = configuration;
-            _loggerFactory = loggerFactory;
+            _loggerFactory = loggerFactory;            
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -130,6 +130,8 @@ namespace WorkPanel.Services
 
                 var assets = dbContext.Assets.ToList();
                 var investors = await dbContext.Investors.ToListAsync();
+                if (investors.Count == 0) return;
+
                 var sum = assets.Sum(a => a.Price * a.Quantity);
                 var totalShares = investors.Sum(investor => investor.SharesReceived);
 
@@ -138,6 +140,28 @@ namespace WorkPanel.Services
                     Date = DateTime.Now,
                     Value = sum / totalShares
                 };
+
+                if (!assets.Exists(a => a.ShortName == "BTC"))
+                {
+                    try
+                    {
+                        var coinApi = new CoinApi(_configuration);
+                        var rate = await coinApi.GetCurrencyRateToUsd("BTC");
+                        //asset.Price = rate.Rate;
+                        //context.Assets.Update(asset);
+                        var currency = dbContext.Currencies.FirstOrDefault(c => c.ShortName == "BTC");
+                        if (currency != null)
+                        {
+                            currency.Rate = rate.Rate;
+                            dbContext.Currencies.Update(currency);
+                        }
+                        dbContext.CurrencyRates.Add(rate);                        
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);                        
+                    }
+                }
 
 
                 dbContext.NavHistories.Add(nav);

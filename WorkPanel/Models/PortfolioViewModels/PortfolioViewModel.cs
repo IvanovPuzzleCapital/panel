@@ -20,8 +20,6 @@ namespace WorkPanel.Models.PortfolioViewModels
 
         public double TotalInvested { get; set; }
 
-        public double Acquisition { get; set; }
-
-        public List<Currency> Currencies { get; set; }
+        public double Acquisition { get; set; }        
     }
 }

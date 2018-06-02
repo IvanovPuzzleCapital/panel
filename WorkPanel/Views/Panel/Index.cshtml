@@ -1,19 +1,17 @@
-﻿@using WorkPanel.Models.PanelViewModels
-@model PanelViewModel
-@{
+﻿@{
     ViewData["Title"] = "Panel Page";    
 }
 
 <div>
     <div id="info-section" style="padding: 30px; background: whitesmoke;">
-        @{
-            await Html.RenderPartialAsync("ValuesPanel");
+        @{            
+            @await Component.InvokeAsync("InvestedPanel")
         }
     </div>
     <br/>
     <div id="investors-div">
         @{
-            await Html.RenderPartialAsync("Investors");
+            @await Component.InvokeAsync("Investors")
         }
     </div>
 </div>
@@ -46,8 +44,8 @@
         });
 
       function refresh() {
-        $("#investors-div").load('/Panel/Investors');
-        $("#info-section").load('/Panel/ValuesPanel');
+        $("#investors-div").load('/Panel/InvestorsVC');
+        $("#info-section").load('/Panel/InvestedVC');
     }
 
     setInterval(refresh, 15000);

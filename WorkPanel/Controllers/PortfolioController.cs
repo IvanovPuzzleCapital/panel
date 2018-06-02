@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using ChartJSCore.Models;
@@ -35,9 +36,7 @@ namespace WorkPanel.Controllers
         public async Task<IActionResult> Index()
         { //todo: разнести все из индекста по секциям
 
-            var investors = await dbContext.Investors.ToListAsync();
-
-            var currencies = await GetCurrencies(true);
+            var investors = await dbContext.Investors.ToListAsync();            
 
             var assets = dbContext.Assets.ToList();
 
@@ -63,8 +62,7 @@ namespace WorkPanel.Controllers
                 NetAssetValue = sum / totalShares,
                 Nav1W = nav1WValue,
                 Nav1M = nav1MValue,
-                Nav3M = nav3MValue,
-                Currencies = currencies,
+                Nav3M = nav3MValue,                
                 HasBtc = assets.Exists(item => item.ShortName == "BTC")
             };
 
@@ -88,17 +86,24 @@ namespace WorkPanel.Controllers
         private void SetChart()
         {
             var rates = dbContext.CurrencyRates.Where(r => r.Base == "BTC");
+            var nav = dbContext.NavHistories.ToList();
             var values = new List<double>();
             var dates = new List<string>();
-            dates.Add(rates.First().Date.ToString("M"));
+            dates.Add(nav.First().Date.ToString("mm", new CultureInfo("en-US")));
             foreach (var rate in rates)
             {
-                dates.Add("");
-                values.Add(rate.Rate);
+                values.Add(Math.Round(rate.Rate, MidpointRounding.AwayFromZero));
             }
 
-            
-            dates.Add(rates.Last().Date.ToString("M"));
+            var val2 = new List<double>();
+            foreach (var item in nav)
+            {
+                dates.Add("");
+                val2.Add(item.Value);
+            }
+
+
+            dates.Add(nav.Last().Date.ToString("M", new CultureInfo("en-US")));
             Chart chart = new Chart();
 
             chart.Type = "line";
@@ -110,7 +115,7 @@ namespace WorkPanel.Controllers
             {
                 Label = "BTC Rate",
                 Data = values,
-                Fill = false.ToString(),
+                Fill = true.ToString(),
                 LineTension = 0.1,
                 BackgroundColor = "rgba(75, 192, 192, 0.4)",
                 BorderColor = "rgba(75,192,192,1)",
@@ -118,20 +123,88 @@ namespace WorkPanel.Controllers
                 BorderDash = new List<int> { },
                 BorderDashOffset = 0.0,
                 BorderJoinStyle = "miter",
-                PointBorderColor = new List<string>() { "rgba(75,192,192,1)" },
+                PointBorderColor = new List<string>() {"rgba(75,192,192,1)"},
+                PointBackgroundColor = new List<string>() {"#fff"},
+                PointBorderWidth = new List<int> {1},
+                PointHoverRadius = new List<int> {5},
+                PointHoverBackgroundColor = new List<string>() {"rgba(75,192,192,1)"},
+                PointHoverBorderColor = new List<string>() {"rgba(220,220,220,1)"},
+                PointHoverBorderWidth = new List<int> {2},
+                PointRadius = new List<int> {1},
+                PointHitRadius = new List<int> {10},
+                SpanGaps = false,
+                YAxisID = "y-axis-1"
+            };
+
+            LineDataset dataset1 = new LineDataset()
+            {
+                Label = "NAV Change",
+                Data = val2,
+                Fill = false.ToString(),
+                LineTension = 0.1,
+                BackgroundColor = "rgba(175, 192, 192, 0.4)",
+                BorderColor = "rgba(175,192,192,1)",
+                BorderCapStyle = "butt",
+                BorderDash = new List<int> { },
+                BorderDashOffset = 0.0,
+                BorderJoinStyle = "miter",
+                PointBorderColor = new List<string>() { "rgba(175,192,192,1)" },
                 PointBackgroundColor = new List<string>() { "#fff" },
                 PointBorderWidth = new List<int> { 1 },
                 PointHoverRadius = new List<int> { 5 },
-                PointHoverBackgroundColor = new List<string>() { "rgba(75,192,192,1)" },
+                PointHoverBackgroundColor = new List<string>() { "rgba(175,192,192,1)" },
                 PointHoverBorderColor = new List<string>() { "rgba(220,220,220,1)" },
                 PointHoverBorderWidth = new List<int> { 2 },
                 PointRadius = new List<int> { 1 },
                 PointHitRadius = new List<int> { 10 },
-                SpanGaps = false
+                SpanGaps = false,
+                YAxisID = "y-axis-2"
             };
 
-            data.Datasets = new List<Dataset>();
-            data.Datasets.Add(dataset);
+
+
+            data.Datasets = new List<Dataset> {dataset, dataset1};
+
+            Options options = new Options()
+            {
+                Scales = new Scales()
+            };
+            
+            Tick tick = new Tick()
+            {
+                Callback = "function(value, index, values) {return '$' + value;}"
+            };
+
+            var y1 = new CartesianScale
+            {
+                Id = "y-axis-1",
+                Ticks = tick,
+                Position = "left",
+                GridLines = new List<GridLine> { new GridLine() { DrawOnChartArea = false } }
+            };
+
+            var y2 = new CartesianScale
+            {
+                Id = "y-axis-2",
+                Ticks = tick,
+                Position = "right",
+                GridLines = new List<GridLine> {new GridLine() {DrawOnChartArea = false}}
+            };
+
+            Scales scales = new Scales()
+            {
+                YAxes = new List<Scale>()
+                {
+                    y1, y2
+                },
+                XAxes = new List<Scale>()
+                {
+                    new CartesianScale(){ GridLines = new List<GridLine> {new GridLine() {DrawOnChartArea = false}}}
+                }
+            };
+         
+            options.Scales = scales;
+            chart.Options = options;
 
             chart.Data = data;
 
@@ -161,13 +234,9 @@ namespace WorkPanel.Controllers
         [HttpGet]
         public async Task<IActionResult> InfoSection()
         {
-            var investors = await dbContext.Investors.ToListAsync();
+            var investors = await dbContext.Investors.ToListAsync();            
 
-            var currencies = await GetCurrencies(true);
-
-            var assets = dbContext.Assets.ToList();
-
-            //CalculateAveragePrices(assets);
+            var assets = dbContext.Assets.ToList();            
 
             var totalInvested = investors.Sum(i => i.AmountInvested);
 
@@ -187,8 +256,7 @@ namespace WorkPanel.Controllers
                 NetAssetValue = sum / totalShares,
                 Nav1W = nav1WValue,
                 Nav1M = nav1MValue,
-                Nav3M = nav3MValue,
-                Currencies = currencies,
+                Nav3M = nav3MValue,                
                 HasBtc = assets.Exists(item => item.ShortName == "BTC")
             };
 

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using WorkPanel.Data;
 using WorkPanel.DataExchange.Responses;
@@ -29,53 +28,18 @@ namespace WorkPanel.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var investors = await dbContext.Investors.OrderBy(s => s.Status).ThenByDescending(s => s.Date).ToListAsync();
-            var assets = await dbContext.Assets.ToListAsync();
-
-            var viewModel = new PanelViewModel
-            {
-                Investors = investors,
-                TotalInvested = investors.Sum(investor => investor.AmountInvested),
-                TotalShares = investors.Sum(investor => investor.SharesReceived),
-                AssetsUnderManagement = assets.Sum(a => a.Price * a.Quantity),
-                NetAssetValue = assets.Sum(a => a.Price * a.Quantity) / investors.Sum(investor => investor.SharesReceived)
-            };
-
-            return View(viewModel);
+            return View();
         }
 
-        public async Task<IActionResult> ValuesPanel()
+        public IActionResult InvestorsVC()
         {
-            var investors = await dbContext.Investors.OrderBy(s => s.Status).ThenByDescending(s => s.Date).ToListAsync();
-            var assets = await dbContext.Assets.ToListAsync();
-
-            var viewModel = new PanelViewModel
-            {
-                Investors = investors,
-                TotalInvested = investors.Sum(investor => investor.AmountInvested),
-                TotalShares = investors.Sum(investor => investor.SharesReceived),
-                AssetsUnderManagement = assets.Sum(a => a.Price * a.Quantity),
-                NetAssetValue = assets.Sum(a => a.Price * a.Quantity) / investors.Sum(investor => investor.SharesReceived)
-            };
-            return PartialView(viewModel);
+            return ViewComponent("Investors");
         }
 
-        public async Task<IActionResult> Investors()
+        public IActionResult InvestedVC()
         {
-            var investors = await dbContext.Investors.OrderBy(s => s.Status).ThenByDescending(s => s.Date).ToListAsync();
-            var assets = await dbContext.Assets.ToListAsync();
-
-            var viewModel = new PanelViewModel
-            {
-                Investors = investors,
-                TotalInvested = investors.Sum(investor => investor.AmountInvested),
-                TotalShares = investors.Sum(investor => investor.SharesReceived),
-                AssetsUnderManagement = assets.Sum(a => a.Price * a.Quantity),
-                NetAssetValue = assets.Sum(a => a.Price * a.Quantity) / investors.Sum(investor => investor.SharesReceived)
-            };
-            return PartialView(viewModel);
-        }
-
+            return ViewComponent("InvestedPanel");
+        }      
 
         [HttpPost]
         public ActionResult InsertInvestor(InvestorViewModel viewModel)
@@ -147,8 +111,7 @@ namespace WorkPanel.Controllers
             var usd = dbContext.Assets.FirstOrDefault(a => a.Name == "USD");
             if (usd != null && usd.Quantity - model.AmountReturned < 0)
             {
-                return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 5 });
-                //ModelState.AddModelError("AmountReturned", "Incorrect amount value. Max value is " + usd.Quantity +"$");                
+                return this.Json(new MetaResponse<object> { StatusCode = 200, ErrorCode = 5 });                               
             }
 
             var investor = dbContext.Investors.FirstOrDefault(p => p.Id == model.Id);
