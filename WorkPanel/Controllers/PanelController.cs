@@ -42,7 +42,7 @@ namespace WorkPanel.Controllers
         }      
 
         [HttpPost]
-        public ActionResult InsertInvestor(InvestorViewModel viewModel)
+        public ActionResult InsertInvestor([FromBody]InvestorViewModel viewModel)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace WorkPanel.Controllers
 
         public IActionResult AddInvestor()
         {
-            return View();
+            return PartialView("AddInvestor");
         }
 
         public IActionResult Info(long? id)
@@ -92,8 +92,8 @@ namespace WorkPanel.Controllers
                 model.Id = investor.Id;
                 model.Status = investor.Status;
                 model.Name = investor.Name;
-                model.Date = investor.Date;
-                model.DeactivateDate = investor.DeactivateDate;
+                model.Date = investor.Date.ToString();
+                model.DeactivateDate = investor.DeactivateDate.ToString();
                 model.HistoricalDateList = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDateList);
                 model.HistoricalDeactivateDateList = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDeactivateDateList);                
                 model.Agreement = investor.Agreement;
@@ -145,14 +145,14 @@ namespace WorkPanel.Controllers
             if (investor != null)
             {
                 investor.Status = Status.Active;
-                investor.Date = model.Date;
-                investor.DeactivateDate = model.DeactivateDate;
+                investor.Date = DateTime.ParseExact(model.Date, "d/M/yyyy", CultureInfo.InvariantCulture);
+                investor.DeactivateDate = DateTime.ParseExact(model.DeactivateDate, "d/M/yyyy", CultureInfo.InvariantCulture); ;
                 investor.SharesBurned = 0;
                 investor.AmountReturned = 0;
                 investor.AmountInvested = model.AmountInvested;
                 investor.SharesReceived = model.SharesReceived;               
                 var list = JsonConvert.DeserializeObject<List<DateTime>>(investor.JsonDateList);
-                list.Add(model.Date);
+                list.Add(investor.Date);
                 investor.JsonDateList = JsonConvert.SerializeObject(list);
                 dbContext.Investors.Update(investor);
 

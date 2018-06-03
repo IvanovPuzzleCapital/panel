@@ -1,44 +1,53 @@
-﻿<div style="text-align: center;">
-    <h4>Add Investor</h4>
-</div>
-<hr />
-<div id="app" class="row">
-    <div class="col-md-9" style="float: none; margin: 0 auto;">
-        @*<form>*@
-        <div class="form-group">                
-            <input class="form-control" type="text" placeholder="Name" v-model="name"/>
-            <span class="text-danger" v-if="errors.includes('name')">Field is empty</span>
+﻿<div class="modal-dialog" style="width: 400px;">    
+    <div class="modal-content">
+        <div style="height:30px; padding: 10px;">
+            <button type="button" class="close" data-dismiss="modal" >&times;</button>
         </div>
-        <div  class="form-group">
-            <div class="input-group date" id="datetimepicker1">
-                <input id="datetimepicker" type="text" class="form-control" placeholder="Date (DD/MM/YYYY)" />
-                <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                </span>
+        <div class="modal-body">
+            <div style="text-align: center;">
+                <h4>Add Investor</h4>
             </div>
-            <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
+            <hr />
+            <div id="app" class="row">
+                <div class="col-md-9" style="float: none; margin: 0 auto;">                    
+                    <div class="form-group">                
+                        <input class="form-control" type="text" placeholder="Name" v-model="name"/>
+                        <span class="text-danger" v-if="errors.includes('name')">Field is empty</span>
+                    </div>
+                    <div  class="form-group">
+                        <div class="input-group date" id="datetimepicker1">
+                            <input id="datetimepicker" type="text" class="form-control" placeholder="Date (DD/MM/YYYY)" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span class="text-danger" v-if="errors.includes('date')">Field is empty</span>
+                    </div>
+                    <div class="form-group">                
+                        <input class="form-control" type="text" placeholder="Agreement" v-model="agreement"/>
+                        <span class="text-danger" v-if="errors.includes('agreement')">Field is empty</span>
+                    </div>
+                    <div class="form-group">                
+                        <input class="form-control" type="number" placeholder="Amount Invested" v-model="amount"/>
+                        <span class="text-danger" v-if="errors.includes('amount')">Field is empty or below zero</span>
+                    </div>
+                    <div class="form-group">                
+                        <input class="form-control" type="number" placeholder="Shares Received" v-model="shares"/>
+                        <span class="text-danger" v-if="errors.includes('shares')">Field is empty or below zero</span>
+                    </div>
+                    <div class="form-group" style="text-align: center; margin-bottom: 0px">
+                        <input id="add-button" type="submit" value="Add" class="btn btn-default" style="border-radius: 20px;width: 150px;background: whitesmoke;" v-on:click="add" />
+                    </div>                    
+                </div>
+            </div>
         </div>
-        <div class="form-group">                
-            <input class="form-control" type="text" placeholder="Agreement" v-model="agreement"/>
-            <span class="text-danger" v-if="errors.includes('agreement')">Field is empty</span>
-        </div>
-        <div class="form-group">                
-            <input class="form-control" type="number" placeholder="Amount Invested" v-model="amount"/>
-            <span class="text-danger" v-if="errors.includes('amount')">Field is empty or below zero</span>
-        </div>
-        <div class="form-group">                
-            <input class="form-control" type="number" placeholder="Shares Received" v-model="shares"/>
-            <span class="text-danger" v-if="errors.includes('shares')">Field is empty or below zero</span>
-        </div>
-        <div class="form-group" style="text-align: center; margin-bottom: 0px">
-            <input id="add-button" type="submit" value="Add" class="btn btn-default" style="border-radius: 20px;width: 150px;background: whitesmoke;" v-on:click="add" />
-        </div>
-        @*</form>*@
     </div>
 </div>
-
+<script>
+    $(function() {
+        $('#datetimepicker1').datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+    });
+</script>
 <script src="~/js/addInvestor.js" asp-append-version="true"></script>
-@section Scripts {
-   
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

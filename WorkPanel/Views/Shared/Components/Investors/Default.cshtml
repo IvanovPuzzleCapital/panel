@@ -18,7 +18,7 @@
         <tbody>
         @foreach (var item in Model.Investors)
         {
-            <tr class="hover-tr">
+            <tr id="@item.Id" class="hover-tr">
                 <td>
                     @if (item.Status == Status.Active)
                     {
@@ -30,10 +30,7 @@
                     }
                 </td>
                 <td>
-                    <a data-toggle="modal" data-target="#modal-action-info" asp-action="Info" asp-route-id="@item.Id">
-                        @item.Name
-                    </a>
-
+                    <b>@item.Name</b>                    
                 </td>
                 <td>@(item.Status == Status.Active ? item.Date.ToShortDateString() : item.DeactivateDate.ToShortDateString())</td>
                 <td>$@item.AmountInvested.ToString("n0", new CultureInfo("en-US"))</td>

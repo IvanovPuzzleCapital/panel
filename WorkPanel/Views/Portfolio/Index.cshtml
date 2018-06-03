@@ -1,6 +1,4 @@
-﻿@*@using WorkPanel.Models.PortfolioViewModels
-@model PortfolioViewModel*@
-@{
+﻿@{
     ViewData["Title"] = "Portfolio";    
 }
 
@@ -11,10 +9,17 @@
                 await Html.RenderPartialAsync("InfoSection");
             }
         </div>
-        <div class="col-xs-6">
-            @*<canvas id="myChart" width="400" height="300"></canvas>*@
-            <div><canvas id="lineChart" width="400" height="300"></canvas></div>
-            @{ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"]; }
+        <div id="chart-section" class="col-xs-6">       
+            <div>
+                <div class="row">
+                    <div class="col-md-3">
+                    <button>SVG</button>
+                    <button>PNG</button>    
+                    </div>
+                    
+                </div>
+            </div>
+            <canvas id="lineChart" width="400" height="300"></canvas>
         </div>
     </div>
     <br/>
@@ -38,28 +43,98 @@
     </div>
 </div>
 
-<div id="modal-action-info" class="modal fade" role="dialog">
-    <div class="modal-dialog" style="width: 400px;">    
-        <div class="modal-content">          
-        </div>
-    </div>
-</div>
-
-
-<script>
-    
-    function refresh() {
-        $("#assets-div").load('/Portfolio/Assets');
-        $("#info-section").load('/Portfolio/InfoSection');
-    }
-
-    setInterval(refresh, 15000);
-
-</script>
-
 @section Scripts {
     <script src="~/lib/chartjs/chart.js"></script>
+
     <script>
-        @Html.Raw(chart.CreateChartCode("lineChart"));
+
+        $(document).on('click',
+            '.hover-tr',
+            function() {
+                var id = $(this).attr('id');
+                if (id === "1") return;
+                $("#modal").modal();
+                $("#modal").load(`/Portfolio/Info/${id}`);
+            });
+
+        function refresh() {
+            $("#assets-div").load('/Portfolio/Assets');
+            $("#info-section").load('/Portfolio/InfoSection');
+        }
+
+        setInterval(refresh, 15000);
+
+        var ctx = $("#lineChart");
+        var myChart = new Chart(ctx,
+            {
+                type: 'line',
+                data: {
+                    labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+                    datasets: [
+                        {
+                            label: 'BTC Rate',
+                            data: [12, 19, 3, 5, 2, 3],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                //'rgba(54, 162, 235, 0.2)',
+                                //'rgba(255, 206, 86, 0.2)',
+                                //'rgba(75, 192, 192, 0.2)',
+                                //'rgba(153, 102, 255, 0.2)',
+                                //'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255,99,132,1)',
+                                //'rgba(54, 162, 235, 1)',
+                                //'rgba(255, 206, 86, 1)',
+                                //'rgba(75, 192, 192, 1)',
+                                //'rgba(153, 102, 255, 1)',
+                                //'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1,
+                            yAxisID: 'btc-axis'
+                        },
+                        {
+                            label: 'NAV Change',
+                            data: [5, 2, 3, 4, 2, 9],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(255,99,132,1)',
+                            ],
+                            borderWidth: 1,
+                            yAxisID: 'nav-axis'
+                        }
+
+                    ]
+                },
+                options: {
+                    scales: {
+                        xAxes: [
+                            {
+                                //type: 'time',
+                                //time: {
+                                //    unit: 'day'
+                                //}
+                            }
+                        ],
+                        yAxes: [
+                            {
+                                id: 'btc-axis',
+                                type: 'linear'
+                            },
+                            {
+                                id: 'nav-axis',
+                                type: 'linear',
+                                position: 'right',
+                                gridLines: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
+
     </script>
 }

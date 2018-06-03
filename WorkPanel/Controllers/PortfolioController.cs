@@ -50,7 +50,7 @@ namespace WorkPanel.Controllers
 
             CalculateNavPercents(out var nav1WValue, out var nav1MValue, out var nav3MValue);
 
-            SetChart();
+            //SetChart();
 
             _viewModel = new PortfolioViewModel
             {
@@ -199,7 +199,10 @@ namespace WorkPanel.Controllers
                 },
                 XAxes = new List<Scale>()
                 {
-                    new CartesianScale(){ GridLines = new List<GridLine> {new GridLine() {DrawOnChartArea = false}}}
+                    new CartesianScale(){
+                        GridLines = new List<GridLine>{new GridLine() {DrawOnChartArea = false}},
+                        Offset = true
+                    }
                 }
             };
          
@@ -209,6 +212,11 @@ namespace WorkPanel.Controllers
             chart.Data = data;
 
             ViewData["chart"] = chart;
+        }
+
+        public ActionResult GetChartData(string period)
+        {
+            return this.Json(new MetaResponse<object> { StatusCode = 200, ResponseObject = "" });
         }
 
         [HttpGet]

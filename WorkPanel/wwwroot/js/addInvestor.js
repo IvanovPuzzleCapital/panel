@@ -1,13 +1,4 @@
-﻿//$(function() {
-//    $("#datepicker").datepicker({ dateFormat: 'dd-mm-yy' });
-//});
-$(function() {
-    $('#datetimepicker1').datetimepicker({
-        format: 'DD/MM/YYYY'
-    });
-});
-
-var vueObj;
+﻿var vueObj;
 vueObj = new Vue({
     el: '#app',
     data: {
@@ -29,20 +20,40 @@ vueObj = new Vue({
             if (this.shares === "" || this.shares <= 0) this.errors.push("shares");
             if (this.errors.length > 0) return;
             $("#add-button").attr("disabled", "disabled");
-            $.post("/Panel/InsertInvestor",
-                    {
-                        Name: this.name,
-                        Date: this.date,
-                        Agreement: this.agreement,
-                        AmountInvested: this.amount,
-                        SharesReceived: this.shares
-                    },
-                function (data) {                        
-                        if (data.statusCode === 200) {
-                            setTimeout(function() { window.location.href = "/Panel/Index" }, 500);
-                        }
-                    })
-                .fail(function(xhr, status, error) {
+            //$.post("/Panel/InsertInvestor",
+            //        {
+            //            Name: this.name,
+            //            Date: this.date,
+            //            Agreement: this.agreement,
+            //            AmountInvested: this.amount,
+            //            SharesReceived: this.shares
+            //        },
+            //        function(data) {
+            //            if (data.statusCode === 200) {
+            //                setTimeout(function() { window.location.href = "/Panel/Index" }, 500);
+            //            }
+            //        })
+            //    .fail(function(xhr, status, error) {
+            //        $("#add-button").removeAttr("disabled");
+            //    });
+            axios({
+                    method: 'post',
+                    url: '/Panel/InsertInvestor',
+                    data: {
+                        'Name': this.name,
+                        'Date': this.date,
+                        'Agreement': this.agreement,
+                        'AmountInvested': this.amount,
+                        'SharesReceived': this.shares
+                    }
+                })
+                .then(function(response) {
+                    var data = response.data;
+                    if (data.statusCode === 200) {
+                        setTimeout(function() { window.location.href = "/Panel/Index" }, 500);
+                    }
+                })
+                .catch(function(error) {
                     $("#add-button").removeAttr("disabled");
                 });
         }

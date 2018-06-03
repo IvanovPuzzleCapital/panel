@@ -5,20 +5,13 @@
 </div>
 <hr />
 <div id="app" class="row">
-    <div class="col-md-9" style="float: none; margin: 0 auto;">
-        @*<form>*@
-        
-
+    <div class="col-md-9" style="float: none; margin: 0 auto;">               
         <div class="form-group">          
             <input class="form-control" type="text" placeholder="Asset Name" list="currencies" v-model="currency" />
             <datalist id="currencies">
                 <option>Bitcoin</option>
                 <option>Ethereum</option>
-                <option>Dogecoin</option>
-                @*@foreach (var currency in Model.Currencies)
-                {
-                    <option>@currency.Name</option>
-                }*@
+                <option>Dogecoin</option>                
             </datalist>
             <span class="text-danger" v-if="errors.includes('currency')">Field is empty</span>
         </div>
@@ -60,8 +53,7 @@
             <span class="text-danger" v-if="errors.includes('wrong-currency')">You can't buy this asset with this type of currency!</span>
             <span class="text-danger" v-if="errors.includes('not-found')">This currency does not exist</span>
             <span class="text-danger" v-if="errors.includes('not-found-on-server')">You can't buy this asset right now, sorry</span>
-        </div>
-        @*</form>*@ 
+        </div>        
     </div>
 </div>
 

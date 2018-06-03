@@ -2,44 +2,46 @@
 @using WorkPanel.Models.PortfolioViewModels
 @model AssetViewModel
 @Html.AntiForgeryToken()
-<div style="height:30px; padding: 10px;">
-    <button type="button" class="close" data-dismiss="modal" >&times;</button>
-</div>
-<div style="text-align: center;">
-    <h3>@Model.Name</h3>
-</div>
-<div style="text-align: center;">
-    <h4>@Model.Quantity.ToString("n2", new CultureInfo("en-US")) <span style="color: lightgray">@Model.ShortName</span></h4>
-</div>
-<hr />
-<div id="app-info" class="row">
-    <div class="col-md-9" style="float: none; margin: 0 auto;">
-        @*<form asp-route-returnUrl="Portfolio" asp-action="SellAsset" name="sellForm" onsubmit="return validateSelling()" method="post">*@
-        <input id="ShortName" class="form-control" type="hidden" />
-        <input id="PurchaseType" class="form-control" type="hidden" />
-        <div class="form-group">
-            <div class="input-group date" id="datetimepicker-info">
-                <input id="Date" name="Date" type="text" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)"/>
-                <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                </span>
-            </div>
-            <span id="sellDateSpan" class="text-danger"></span>
+<div class="modal-dialog" style="width: 400px;">    
+    <div class="modal-content">          
+        <div style="height:30px; padding: 10px;">
+            <button type="button" class="close" data-dismiss="modal" >&times;</button>
         </div>
-        <div class="form-group">
-            <div class="input-group">
-                <input id="Quantity" class="form-control" type="number" min="0" step="0.01" placeholder="Sold Quantity"/>
-                <span class="input-group-addon">
-                    <span class="not-active-price" onclick="sellAll()">ALL</span>
-                </span>
+        <div class="modal-body" style="margin-top: 0px;">
+            <div style="text-align: center;">
+                <h3>@Model.Name</h3>
             </div>
-            <span id="sellQuantitySpan" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <div class="input-group">
-                <input id="Price" type="number" min="0" step="0.01"  class="form-control" placeholder="Sold Price"/>
-                <span class="input-group-addon">
-                    @*@if (Model.HasBtc)
+            <div style="text-align: center;">
+                <h4>@Model.Quantity.ToString("n2", new CultureInfo("en-US")) <span style="color: lightgray">@Model.ShortName</span></h4>
+            </div>
+            <hr />
+            <div id="app-info" class="row">
+                <div class="col-md-9" style="float: none; margin: 0 auto;">        
+                    <input id="ShortName" class="form-control" type="hidden" />
+                    <input id="PurchaseType" class="form-control" type="hidden" />
+                    <div class="form-group">
+                        <div class="input-group date" id="datetimepicker-info">
+                            <input id="Date" name="Date" type="text" class="form-control" placeholder="Date (DD/MM/YYYY) and Time (HH:MM)"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span id="sellDateSpan" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input id="Quantity" class="form-control" type="number" min="0" step="0.01" placeholder="Sold Quantity"/>
+                            <span class="input-group-addon">
+                                <span class="not-active-price" onclick="sellAll()">ALL</span>
+                            </span>
+                        </div>
+                        <span id="sellQuantitySpan" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input id="Price" type="number" min="0" step="0.01"  class="form-control" placeholder="Sold Price"/>
+                            <span class="input-group-addon">
+                                @*@if (Model.HasBtc)
                     {
                         <span id="btc-span" class="not-active-price" onclick="togglePrice()">BTC</span>
                         <span id="usd-span" class="active-price" onclick="togglePrice()">USD</span>
@@ -48,26 +50,24 @@
                     {
                         <span class="active-price">USD</span>
                     }*@
-                    <span id="btc-span" class="not-active-price" onclick="togglePrice()">BTC</span>
-                    <span id="usd-span" class="active-price" onclick="togglePrice()">USD</span>
-                </span>
+                                <span id="btc-span" class="not-active-price" onclick="togglePrice()">BTC</span>
+                                <span id="usd-span" class="active-price" onclick="togglePrice()">USD</span>
+                            </span>
+                        </div>
+                        <span id="sellPriceSpan" class="text-danger"></span>
+                    </div>    
+                    <div  id="BTC-price-div" class="form-group" style="display: none;">
+                        <input id="BTCPrice" type="number" min="0" step="0.01"  class="form-control" placeholder="BTC Price"/>
+                        <span id="sellBTCPriceSpan" class="text-danger"></span>
+                    </div>
+                    <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
+                        <input id="sell-button" type="submit" value="Sell" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" onclick="validateSelling()"/>
+                        <br />
+                        <span id="sellButtonSpan" class="text-danger"></span>
+                    </div>                    
+                </div>
             </div>
-            <span id="sellPriceSpan" class="text-danger"></span>
         </div>
-        @if (Model.HasBtc)
-        {
-           
-        }
-        <div  id="BTC-price-div" class="form-group" style="display: none;">
-            <input id="BTCPrice" type="number" min="0" step="0.01"  class="form-control" placeholder="BTC Price"/>
-            <span id="sellBTCPriceSpan" class="text-danger"></span>
-        </div>
-        <div class="form-group" style="text-align: center; margin-top: 20px; margin-bottom: 20px">
-            <input id="sell-button" type="submit" value="Sell" class="btn btn-default" style="border-radius: 20px; width: 150px; background: whitesmoke;" onclick="validateSelling()"/>
-            <br />
-            <span id="sellButtonSpan" class="text-danger"></span>
-        </div>
-        @*</form>*@
     </div>
 </div>
 
@@ -80,7 +80,10 @@
     var btcPriceInput = $("#BTC-price-div");
 
     $(function() {
-        $('#datetimepicker-info').datetimepicker();
+        $('#datetimepicker-info').datetimepicker({
+            format: 'DD/MM/YYYY HH:mm'
+        });
+        //DD/MM/YYYY) and Time (HH:MM
     });
 
     function togglePrice() {

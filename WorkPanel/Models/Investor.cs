@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 using Newtonsoft.Json;
 using WorkPanel.Models.PanelViewModels;
 
@@ -48,7 +49,7 @@ namespace WorkPanel.Models
             Id = viewModel.Id;
             Status = viewModel.Status;
             Name = viewModel.Name;
-            Date = viewModel.Date;
+            Date = DateTime.ParseExact(viewModel.Date, "d/M/yyyy", CultureInfo.InvariantCulture); ;
             HistoricalDateList = new List<DateTime> {Date};
             HistoricalDeactivateDateList = new List<DateTime>();
             JsonDateList = JsonConvert.SerializeObject(HistoricalDateList);

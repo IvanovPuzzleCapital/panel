@@ -11,9 +11,9 @@ namespace WorkPanel.Models.PanelViewModels
 
         public string Name { get; set; }
 
-        public DateTime Date { get; set; }
-        
-        public DateTime DeactivateDate { get; set; }
+        public string Date { get; set; }
+
+        public string DeactivateDate { get; set; }
 
         public List<DateTime> HistoricalDateList { get; set; }
 

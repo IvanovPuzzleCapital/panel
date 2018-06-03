@@ -17,40 +17,34 @@
 </div>
 
 <div id="add-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog" style="width: 400px;">    
-        <div class="modal-content">
-            <div style="height:30px; padding: 10px;">
-                <button type="button" class="close" data-dismiss="modal" >&times;</button>
-            </div>
-            <div class="modal-body">
-                @await Html.PartialAsync("AddInvestor")
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="modal-action-info" class="modal fade" role="dialog">
-    <div class="modal-dialog" style="width: 400px;">    
-        <div class="modal-content">          
-        </div>
-    </div>
+    @await Html.PartialAsync("AddInvestor")
 </div>
 
 <script>
+
+    $(document).on('click',
+        '.hover-tr',
+        function() {
+            var id = $(this).attr('id');
+            $("#modal").modal();
+            $("#modal").load(`/Panel/Info/${id}`);
+        });
+
     $('body').on('hidden.bs.modal',
         '#modal-action-info',
         function() {
             $(this).removeData('bs.modal');
         });
 
-      function refresh() {
+    function refresh() {
         $("#investors-div").load('/Panel/InvestorsVC');
         $("#info-section").load('/Panel/InvestedVC');
     }
 
+    function add() {        
+        $("#modal").modal();
+        $("#modal").load(`/Panel/AddInvestor`);
+    }
+
     setInterval(refresh, 15000);
 </script>
-
-@section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-}
