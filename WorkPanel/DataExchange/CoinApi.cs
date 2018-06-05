@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -39,6 +40,7 @@ namespace WorkPanel.DataExchange
             var response = await client.ExecuteTaskAsync(request);
             if (!response.IsSuccessful) return null;
             var rate = JsonConvert.DeserializeObject<CurrencyRate>(response.Content);
+            rate.Date = DateTime.Now;
             return rate;
         }
     }
