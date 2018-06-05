@@ -8,7 +8,6 @@
 
 
   <ItemGroup>
-    <PackageReference Include="ChartJSCore" Version="1.2.4" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.3" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.4" PrivateAssets="All" />
@@ -23,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\lib\canvas2svg\dist\" />
     <Folder Include="wwwroot\lib\moment\" />
     <Folder Include="wwwroot\lib\vue\dist\" />
   </ItemGroup>

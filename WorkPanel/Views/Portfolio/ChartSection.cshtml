@@ -1,0 +1,213 @@
+﻿<div class="row">
+    <div class="col-md-8">
+        <button id="d" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">1D</span>
+        </button>
+        <button id="w" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">1W</span>
+        </button>
+        <button id="m" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">1M</span>
+        </button>
+        <button id="m3" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">3M</span>
+        </button>
+        <button id="y" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">1Y</span>
+        </button>
+        <button id="all" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">ALL</span>
+        </button>
+        <button id="ytd" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">YTD</span>
+        </button>
+    </div>
+    <div class="col-md-4" style="text-align: end">
+        <button id="svg" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">SVG</span>
+        </button>
+        <button id="png" type="button" class="btn chart-btn">
+            <span style="font-weight: bold">PNG</span>
+        </button>
+    </div>
+</div>
+<div id="chart-div"><canvas id="lineChart" width="400" height="300"></canvas></div>
+
+
+
+<script src="~/lib/chartjs/chart.js"></script>
+<script src="~/lib/downloadjs/dist/download.js"></script>
+<script src="~/lib/canvas2svg/dist/canvas2svg.js"></script>
+
+<script>
+    var timeFormat = 'MM/DD/YYYY HH:mm';
+
+    loadChart("day");
+
+    $("#d").click(function () {
+        clearChart();
+        loadChart("day");
+    });
+
+    $("#w").click(function () {
+        clearChart();
+        loadChart("week");
+    });
+
+    $("#m").click(function () {
+        clearChart();
+        loadChart("month");
+    });
+
+    $("#m3").click(function () {
+        clearChart();
+        loadChart("month3");
+    });
+
+    $("#y").click(function () {
+        clearChart();
+        loadChart("year");
+    });
+
+    $("#all").click(function () {
+        clearChart();
+        loadChart("all");
+    });
+
+    $("#ytd").click(function () {
+        clearChart();
+        loadChart("ytd");
+    });
+
+    $("#svg").click(function () {
+        saveSVG();
+    });
+
+    $("#png").click(function () {
+        savePNG();
+    });
+
+    var backgroundColor = 'white';
+    Chart.plugins.register({
+        beforeDraw: function(c) {
+            var ctx = c.chart.ctx;
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, c.chart.width, c.chart.height);
+        }
+    });
+
+     function savePNG() {
+        var url_base64 = document.getElementById("lineChart").toDataURL("image/png");
+         download(url_base64, "chart.png", "image/png");
+    }
+
+    function saveSVG() {
+        //var context = document.getElementById("lineChart").getContext("2d");
+        //// canvas2svg 'mock' context
+        //var svgContext = C2S(500, 500);
+
+        //// new chart on 'mock' context fails:
+        //var mySvg = new Chart(svgContext, chartConfig);
+    }
+
+    
+
+    function clearChart() {
+        Chart.helpers.each(Chart.instances,
+            function(instance) {
+                instance.chart.destroy();
+            });
+    }
+
+    var chartConfig;
+
+    function loadChart(period) {
+        $.getJSON('/Portfolio/GetChartData?period=' + period,
+            function(data) {
+                var btcLabels = [];
+                var btcPoints = [];
+
+                var navLabels = [];
+                var navPoints = [];
+
+                data.btc.forEach(function(elem) {
+                    btcLabels.push(moment(elem.time));
+                    btcPoints.push(elem.rate);
+                });
+
+                data.nav.forEach(function(elem) {
+                    navLabels.push(moment(elem.date));
+                    navPoints.push(elem.value);
+                });
+
+                var color = Chart.helpers.color;
+                var config = {
+                    type: 'line',
+                    data: {
+                        labels: btcLabels,
+                        datasets: [
+                            {
+                                label: 'BTC Rate',
+                                yAxisID: 'btc-axis',
+                                backgroundColor: color("red").alpha(0.5).rgbString(),
+                                borderColor: "red",
+                                fill: false,
+                                data: btcPoints
+                            },
+                            {
+                                label: 'NAV Change',
+                                yAxisID: 'nav-axis',
+                                backgroundColor: color("blue").alpha(0.5).rgbString(),
+                                borderColor: "blue",
+                                fill: false,
+                                data: navPoints
+                            }
+                        ]
+                    },
+                    options: {
+                        title: {
+                            text: 'Chart.js Time Scale'
+                        },
+                        scales: {
+                            xAxes: [
+                                {
+                                    type: 'time',
+                                    time: {
+                                        format: timeFormat,
+                                        // round: 'day'
+                                        tooltipFormat: 'll HH:mm'
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        // labelString: 'Date'
+                                    }
+                                }
+                            ],
+                            yAxes: [
+                                {
+                                    id: 'btc-axis',
+                                    scaleLabel: {
+                                        display: true,
+                                    }
+                                },
+                                {
+                                    id: 'nav-axis',
+                                    position: 'right',
+                                    scaleLabel: {
+                                        display: true,
+                                        // labelString: 'value'
+                                    }
+                                }
+                            ]
+                        },
+                    }
+                };
+                var ctx = document.getElementById('lineChart').getContext('2d');
+                chartConfig = config;
+                var myChart = new Chart(ctx, config);
+            });
+    }
+
+   
+</script>
+

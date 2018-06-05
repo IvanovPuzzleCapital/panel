@@ -70,3 +70,24 @@ vueObj = new Vue({
         }
     }
 });
+
+$(document).ready(function() {
+    $("#currency-input").autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: '/Portfolio/AutocompleteCurrency',
+                type: 'GET',
+                cache: false,
+                data: request,
+                dataType: 'json',
+                success: function(data) {
+                    response(data);
+                }
+            });
+        },
+        minLength: 2,
+        select: function(event, ui) {            
+            $("#currency-input").val(ui.item.value);
+        }
+    });
+});

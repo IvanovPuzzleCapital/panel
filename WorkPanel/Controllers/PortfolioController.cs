@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using ChartJSCore.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +49,7 @@ namespace WorkPanel.Controllers
             CalculateNavPercents(out var nav1WValue, out var nav1MValue, out var nav3MValue);
 
             //SetChart();
+          //  GenerateLineChart();
 
             _viewModel = new PortfolioViewModel
             {
@@ -83,140 +82,50 @@ namespace WorkPanel.Controllers
             nav3MValue = nav3M?.Value ?? 0;
         }
 
-        private void SetChart()
-        {
-            var rates = dbContext.CurrencyRates.Where(r => r.Base == "BTC");
-            var nav = dbContext.NavHistories.ToList();
-            var values = new List<double>();
-            var dates = new List<string>();
-            dates.Add(nav.First().Date.ToString("mm", new CultureInfo("en-US")));
-            foreach (var rate in rates)
-            {
-                values.Add(Math.Round(rate.Rate, MidpointRounding.AwayFromZero));
-            }
-
-            var val2 = new List<double>();
-            foreach (var item in nav)
-            {
-                dates.Add("");
-                val2.Add(item.Value);
-            }
-
-
-            dates.Add(nav.Last().Date.ToString("M", new CultureInfo("en-US")));
-            Chart chart = new Chart();
-
-            chart.Type = "line";
-
-            ChartJSCore.Models.Data data = new ChartJSCore.Models.Data();
-            data.Labels = dates;
-
-            LineDataset dataset = new LineDataset()
-            {
-                Label = "BTC Rate",
-                Data = values,
-                Fill = true.ToString(),
-                LineTension = 0.1,
-                BackgroundColor = "rgba(75, 192, 192, 0.4)",
-                BorderColor = "rgba(75,192,192,1)",
-                BorderCapStyle = "butt",
-                BorderDash = new List<int> { },
-                BorderDashOffset = 0.0,
-                BorderJoinStyle = "miter",
-                PointBorderColor = new List<string>() {"rgba(75,192,192,1)"},
-                PointBackgroundColor = new List<string>() {"#fff"},
-                PointBorderWidth = new List<int> {1},
-                PointHoverRadius = new List<int> {5},
-                PointHoverBackgroundColor = new List<string>() {"rgba(75,192,192,1)"},
-                PointHoverBorderColor = new List<string>() {"rgba(220,220,220,1)"},
-                PointHoverBorderWidth = new List<int> {2},
-                PointRadius = new List<int> {1},
-                PointHitRadius = new List<int> {10},
-                SpanGaps = false,
-                YAxisID = "y-axis-1"
-            };
-
-            LineDataset dataset1 = new LineDataset()
-            {
-                Label = "NAV Change",
-                Data = val2,
-                Fill = false.ToString(),
-                LineTension = 0.1,
-                BackgroundColor = "rgba(175, 192, 192, 0.4)",
-                BorderColor = "rgba(175,192,192,1)",
-                BorderCapStyle = "butt",
-                BorderDash = new List<int> { },
-                BorderDashOffset = 0.0,
-                BorderJoinStyle = "miter",
-                PointBorderColor = new List<string>() { "rgba(175,192,192,1)" },
-                PointBackgroundColor = new List<string>() { "#fff" },
-                PointBorderWidth = new List<int> { 1 },
-                PointHoverRadius = new List<int> { 5 },
-                PointHoverBackgroundColor = new List<string>() { "rgba(175,192,192,1)" },
-                PointHoverBorderColor = new List<string>() { "rgba(220,220,220,1)" },
-                PointHoverBorderWidth = new List<int> { 2 },
-                PointRadius = new List<int> { 1 },
-                PointHitRadius = new List<int> { 10 },
-                SpanGaps = false,
-                YAxisID = "y-axis-2"
-            };
-
-
-
-            data.Datasets = new List<Dataset> {dataset, dataset1};
-
-            Options options = new Options()
-            {
-                Scales = new Scales()
-            };
-            
-            Tick tick = new Tick()
-            {
-                Callback = "function(value, index, values) {return '$' + value;}"
-            };
-
-            var y1 = new CartesianScale
-            {
-                Id = "y-axis-1",
-                Ticks = tick,
-                Position = "left",
-                GridLines = new List<GridLine> { new GridLine() { DrawOnChartArea = false } }
-            };
-
-            var y2 = new CartesianScale
-            {
-                Id = "y-axis-2",
-                Ticks = tick,
-                Position = "right",
-                GridLines = new List<GridLine> {new GridLine() {DrawOnChartArea = false}}
-            };
-
-            Scales scales = new Scales()
-            {
-                YAxes = new List<Scale>()
-                {
-                    y1, y2
-                },
-                XAxes = new List<Scale>()
-                {
-                    new CartesianScale(){
-                        GridLines = new List<GridLine>{new GridLine() {DrawOnChartArea = false}},
-                        Offset = true
-                    }
-                }
-            };
-         
-            options.Scales = scales;
-            chart.Options = options;
-
-            chart.Data = data;
-
-            ViewData["chart"] = chart;
-        }
-
         public ActionResult GetChartData(string period)
         {
-            return this.Json(new MetaResponse<object> { StatusCode = 200, ResponseObject = "" });
+            var timeAgo = new DateTime();
+            switch (period)
+            {
+                case "day":
+                    timeAgo = DateTime.Now - TimeSpan.FromDays(1);
+                    break;
+                case "week":
+                    timeAgo = DateTime.Now - TimeSpan.FromDays(7);
+                    break;
+                case "month":
+                    timeAgo = DateTime.Now - TimeSpan.FromDays(30);
+                    break;
+                case "month3":
+                    timeAgo = DateTime.Now - TimeSpan.FromDays(90);
+                    break;
+                case "year":
+                    timeAgo = DateTime.Now - TimeSpan.FromDays(365);
+                    break;
+                case "ytd":
+                    timeAgo = new DateTime(DateTime.Now.Year, 1, 1); ;
+                    break;
+                case "all":
+                    timeAgo = DateTime.MinValue;
+                    break;
+            }
+
+            var btcRates = new List<CurrencyRate>();
+            foreach (var rate in dbContext.CurrencyRates.Where(b => b.Base == "BTC" && b.Date >= timeAgo))
+            {
+                rate.Rate = Math.Round(rate.Rate, 2, MidpointRounding.AwayFromZero);
+                btcRates.Add(rate);
+            }
+            var navRates = new List<NavHistory>();
+            foreach (var rate in dbContext.NavHistories.Where(b => b.Date >= timeAgo))
+            {
+                rate.Value = Math.Round(rate.Value, 2, MidpointRounding.AwayFromZero);
+                navRates.Add(rate);
+            }
+
+            var result = new {btc = btcRates, nav = navRates};
+
+            return this.Json(result);
         }
 
         [HttpGet]
@@ -237,6 +146,11 @@ namespace WorkPanel.Controllers
             };
 
             return PartialView(_viewModel);
+        }
+
+        public IActionResult ChartSection()
+        {
+            return PartialView();
         }
 
         [HttpGet]
@@ -344,12 +258,12 @@ namespace WorkPanel.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> AutocompleteCurrency(string query)
+        public async Task<ActionResult> AutocompleteCurrency(string term)
         {
-            if (string.IsNullOrEmpty(query))
+            if (string.IsNullOrEmpty(term))
                 return this.Json(new MetaResponse<object> {StatusCode = 200, ResponseObject = ""});
-            var result = await dbContext.Currencies.Where(c => c.Name.Contains("query")).Take(5).ToListAsync();
-            return this.Json(new MetaResponse<object> { StatusCode = 200 });
+            var result = await dbContext.Currencies.Where(c => c.Name.Contains(term)).Take(5).Select(s=>s.Name).ToListAsync();
+            return this.Json(result);
         }
 
         [HttpPost]
@@ -531,5 +445,5 @@ namespace WorkPanel.Controllers
             var priceCurrency = dbContext.CurrencyRates.Last(cur => cur.Base == currency.ShortName);
             return priceCurrency;
         }
-    }
+    }    
 }

@@ -10,7 +10,7 @@ namespace WorkPanel.Controllers
         {
             if (this.User.Identity.IsAuthenticated)
             {
-                return Redirect("Panel");
+                return Redirect("Portfolio");
             }
 
             return Redirect("Account/Login");
