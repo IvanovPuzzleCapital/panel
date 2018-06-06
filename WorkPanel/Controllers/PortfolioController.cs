@@ -262,7 +262,7 @@ namespace WorkPanel.Controllers
         {
             if (string.IsNullOrEmpty(term))
                 return this.Json(new MetaResponse<object> {StatusCode = 200, ResponseObject = ""});
-            var result = await dbContext.Currencies.Where(c => c.Name.Contains(term)).Take(5).Select(s=>s.Name).ToListAsync();
+            var result = await dbContext.Currencies.Where(c => c.Name.Contains(term)).Take(10).Select(s=>s.Name).Distinct().ToListAsync();
             return this.Json(result);
         }
 
