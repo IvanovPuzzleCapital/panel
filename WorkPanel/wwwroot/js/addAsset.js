@@ -88,6 +88,7 @@ $(document).ready(function() {
         minLength: 2,
         select: function(event, ui) {            
             $("#currency-input").val(ui.item.value);
+            vueObj.currency = ui.item.value;
         }
     });
 });
