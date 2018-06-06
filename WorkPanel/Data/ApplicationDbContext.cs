@@ -18,6 +18,8 @@ namespace WorkPanel.Data
 
         public DbSet<NavHistory> NavHistories { get; set; }
 
+        public DbSet<BtcHistory> BtcHistories { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

@@ -114,6 +114,7 @@ namespace WorkPanel.Services
         {
             using (var scope = _scopeFactory.CreateScope())
             {
+                var coinApi = new CoinApi(_configuration);
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
                 var navs = dbContext.NavHistories.ToList();
@@ -141,31 +142,37 @@ namespace WorkPanel.Services
                     Value = sum / totalShares
                 };
 
-                if (!assets.Exists(a => a.ShortName == "BTC"))
-                {
-                    try
-                    {
-                        var coinApi = new CoinApi(_configuration);
-                        var rate = await coinApi.GetCurrencyRateToUsd("BTC");
-                        //asset.Price = rate.Rate;
-                        //context.Assets.Update(asset);
-                        var currency = dbContext.Currencies.FirstOrDefault(c => c.ShortName == "BTC");
-                        if (currency != null)
-                        {
-                            currency.Rate = rate.Rate;
-                            dbContext.Currencies.Update(currency);
-                        }
-                        dbContext.CurrencyRates.Add(rate);                        
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);                        
-                    }
-                }
+                var rate = await coinApi.GetCurrencyRateToUsd("BTC");
 
+                var btc = new BtcHistory
+                {
+                    Date = DateTime.Now,
+                    Value = rate.Rate
+                };
 
                 dbContext.NavHistories.Add(nav);
+                dbContext.BtcHistories.Add(btc);
                 dbContext.SaveChanges();
+
+                //if (!assets.Exists(a => a.ShortName == "BTC"))
+                //{
+                //    try
+                //    {
+
+
+                //        var currency = dbContext.Currencies.FirstOrDefault(c => c.ShortName == "BTC");
+                //        if (currency != null)
+                //        {
+                //            currency.Rate = rate.Rate;
+                //            dbContext.Currencies.Update(currency);
+                //        }
+                //        dbContext.CurrencyRates.Add(rate);                        
+                //    }
+                //    catch (Exception e)
+                //    {
+                //        Console.WriteLine(e);                        
+                //    }
+                //}
             }
         }
     }

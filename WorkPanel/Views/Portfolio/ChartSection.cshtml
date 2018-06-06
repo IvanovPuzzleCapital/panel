@@ -23,9 +23,9 @@
         </button>
     </div>
     <div class="col-md-4" style="text-align: end">
-        <button id="svg" type="button" class="btn chart-btn">
+        @*<button id="svg" type="button" class="btn chart-btn">
             <span style="font-weight: bold">SVG</span>
-        </button>
+        </button>*@
         <button id="png" type="button" class="btn chart-btn">
             <span style="font-weight: bold">PNG</span>
         </button>
@@ -131,8 +131,8 @@
                 var navPoints = [];
 
                 data.btc.forEach(function(elem) {
-                    btcLabels.push(moment(elem.time));
-                    btcPoints.push(elem.rate);
+                    btcLabels.push(moment(elem.date));
+                    btcPoints.push(elem.value);
                 });
 
                 data.nav.forEach(function(elem) {
@@ -153,17 +153,23 @@
                                 borderColor: "red",
                                 fill: false,
                                 data: btcPoints,
-                                radius: 0
+                                hitRadius: 10,
+                                radius: 0,
+                                tension: 0.1
                             },
                             {
                                 label: 'NAV Change',
                                 yAxisID: 'nav-axis',
-                                backgroundColor: color("blue").alpha(0.5).rgbString(),
+                                backgroundColor: color("blue").alpha(0.1).rgbString(),
                                 borderColor: "blue",
-                                fill: false,
+                                fill: true,
                                 data: navPoints,
-                                radius: 0
-                            }
+                                hitRadius: 10,
+                                radius: 0,
+                                spanGaps: false,
+                                tension: 0.1
+
+            }
                         ]
                     },
                     options: {

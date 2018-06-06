@@ -68,26 +68,35 @@ namespace WorkPanel.Controllers
                             Value = usd.Quantity / investor.SharesReceived
                         };
 
-                        dbContext.NavHistories.Add(nav);
+                        var rate = await coinApi.GetCurrencyRateToUsd("BTC");
 
-                        if (!dbContext.Assets.ToList().Exists(a => a.ShortName == "BTC"))
+                        var btc = new BtcHistory
                         {
-                            try
-                            {
-                                var rate = await coinApi.GetCurrencyRateToUsd("BTC");                                
-                                var currency = dbContext.Currencies.FirstOrDefault(c => c.ShortName == "BTC");
-                                if (currency != null)
-                                {
-                                    currency.Rate = rate.Rate;
-                                    dbContext.Currencies.Update(currency);
-                                }
-                                dbContext.CurrencyRates.Add(rate);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e);
-                            }
-                        }
+                            Date = DateTime.Now,
+                            Value = rate.Rate
+                        };
+
+                        dbContext.NavHistories.Add(nav);
+                        dbContext.BtcHistories.Add(btc);
+
+                        //if (!dbContext.Assets.ToList().Exists(a => a.ShortName == "BTC"))
+                        //{
+                        //    try
+                        //    {
+                        //        var rate = await coinApi.GetCurrencyRateToUsd("BTC");                                
+                        //        var currency = dbContext.Currencies.FirstOrDefault(c => c.ShortName == "BTC");
+                        //        if (currency != null)
+                        //        {
+                        //            currency.Rate = rate.Rate;
+                        //            dbContext.Currencies.Update(currency);
+                        //        }
+                        //        dbContext.CurrencyRates.Add(rate);
+                        //    }
+                        //    catch (Exception e)
+                        //    {
+                        //        Console.WriteLine(e);
+                        //    }
+                        //}
                     }
                 }
 

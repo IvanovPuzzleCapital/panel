@@ -110,14 +110,14 @@ namespace WorkPanel.Controllers
                     break;
             }
 
-            var btcRates = new List<CurrencyRate>();
-            foreach (var rate in dbContext.CurrencyRates.Where(b => b.Base == "BTC" && b.Date >= timeAgo))
+            var btcRates = new List<BtcHistory>();
+            foreach (var rate in dbContext.BtcHistories.Where(b => b.Date >= timeAgo).OrderByDescending(b=>b.Date))
             {
-                rate.Rate = Math.Round(rate.Rate, 2, MidpointRounding.AwayFromZero);
+                rate.Value = Math.Round(rate.Value, 2, MidpointRounding.AwayFromZero);
                 btcRates.Add(rate);
             }
             var navRates = new List<NavHistory>();
-            foreach (var rate in dbContext.NavHistories.Where(b => b.Date >= timeAgo))
+            foreach (var rate in dbContext.NavHistories.Where(b => b.Date >= timeAgo).OrderByDescending(b => b.Date))
             {
                 rate.Value = Math.Round(rate.Value, 2, MidpointRounding.AwayFromZero);
                 navRates.Add(rate);
