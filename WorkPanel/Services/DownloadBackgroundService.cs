@@ -135,10 +135,12 @@ namespace WorkPanel.Services
 
                 var sum = assets.Sum(a => a.Price * a.Quantity);
                 var totalShares = investors.Sum(investor => investor.SharesReceived);
+                var time = DateTime.Now;
+                
 
                 var nav = new NavHistory
                 {
-                    Date = DateTime.Now,
+                    Date = time,
                     Value = sum / totalShares
                 };
 
@@ -146,7 +148,7 @@ namespace WorkPanel.Services
 
                 var btc = new BtcHistory
                 {
-                    Date = DateTime.Now,
+                    Date = time,
                     Value = rate.Rate
                 };
 

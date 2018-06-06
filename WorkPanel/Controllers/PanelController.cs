@@ -62,9 +62,10 @@ namespace WorkPanel.Controllers
 
                     if (invCnt == 0)
                     {
+                        var time = DateTime.Now;
                         var nav = new NavHistory
                         {
-                            Date = DateTime.Now,
+                            Date = time,
                             Value = usd.Quantity / investor.SharesReceived
                         };
 
@@ -72,7 +73,7 @@ namespace WorkPanel.Controllers
 
                         var btc = new BtcHistory
                         {
-                            Date = DateTime.Now,
+                            Date = time,
                             Value = rate.Rate
                         };
 
