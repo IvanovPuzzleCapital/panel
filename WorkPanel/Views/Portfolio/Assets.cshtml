@@ -28,12 +28,12 @@
                 }
                 @if (percent > 0)
                 {
-                    <span style="color: #2BBF5C; font-size: large;">$@asset.Price.ToString("n"+asset.PointNumber, new CultureInfo("en-US"))</span>
+                    <span style="color: #2BBF5C; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span>
                     <span style="color: #2BBF5C; margin-left: 10px; font-size: small;">+@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                 }
                 else
                 {
-                    <span style="color: red; font-size: large;">$@asset.Price.ToString("n"+asset.PointNumber, new CultureInfo("en-US"))</span>
+                    <span style="color: red; font-size: large;">$@asset.Price.ToString("n2", new CultureInfo("en-US"))</span>
                     <span style="color: red; margin-left: 10px; font-size: small;">@(percent.ToString("p2", new CultureInfo("en-US")))</span>
                 }
             </td>

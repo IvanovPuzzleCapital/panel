@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using WorkPanel.Data;
+using WorkPanel.DataExchange;
 using WorkPanel.DataExchange.Responses;
 using WorkPanel.Models;
 using WorkPanel.Models.PanelViewModels;
@@ -19,9 +21,12 @@ namespace WorkPanel.Controllers
     {
         private readonly ApplicationDbContext dbContext;
 
-        public PanelController(ApplicationDbContext context)
+        private readonly CoinApi coinApi;
+
+        public PanelController(ApplicationDbContext context, IConfiguration configuration)
         {
             dbContext = context;
+            coinApi = new CoinApi(configuration);
             ViewBag.Selected = "Investors";
             ViewData["Section"] = "Investors";
         }
@@ -42,7 +47,7 @@ namespace WorkPanel.Controllers
         }      
 
         [HttpPost]
-        public ActionResult InsertInvestor([FromBody]InvestorViewModel viewModel)
+        public async Task<ActionResult> InsertInvestor([FromBody]InvestorViewModel viewModel)
         {
             try
             {
@@ -64,6 +69,25 @@ namespace WorkPanel.Controllers
                         };
 
                         dbContext.NavHistories.Add(nav);
+
+                        if (!dbContext.Assets.ToList().Exists(a => a.ShortName == "BTC"))
+                        {
+                            try
+                            {
+                                var rate = await coinApi.GetCurrencyRateToUsd("BTC");                                
+                                var currency = dbContext.Currencies.FirstOrDefault(c => c.ShortName == "BTC");
+                                if (currency != null)
+                                {
+                                    currency.Rate = rate.Rate;
+                                    dbContext.Currencies.Update(currency);
+                                }
+                                dbContext.CurrencyRates.Add(rate);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+                        }
                     }
                 }
 
