@@ -103,7 +103,7 @@ namespace WorkPanel.Controllers
                     timeAgo = DateTime.Now - TimeSpan.FromDays(365);
                     break;
                 case "ytd":
-                    timeAgo = new DateTime(DateTime.Now.Year, 1, 1); ;
+                    timeAgo = new DateTime(DateTime.Now.Year, 1, 1);
                     break;
                 case "all":
                     timeAgo = DateTime.MinValue;

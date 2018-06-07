@@ -31,7 +31,10 @@
         </button>
     </div>
 </div>
-<div id="chart-div"><canvas id="lineChart" width="400" height="300"></canvas></div>
+<div id="chart-div">
+    <canvas id="placeholder-canvas" width="510" height="385" style="display: block; background: white"></canvas>
+    <canvas id="line-chart" width="400" height="300" style="position: absolute; bottom: 0"></canvas>
+</div>
 
 
 
@@ -41,49 +44,58 @@
 
 <script>
     var timeFormat = 'MM/DD/YYYY HH:mm';
+    var currentPeriod = 'day';
+    var currentBtcData = [];
 
     loadChart("day");
 
-    $("#d").click(function () {
+    $("#d").click(function() {
         clearChart();
         loadChart("day");
+        currentPeriod = 'day';
     });
 
-    $("#w").click(function () {
+    $("#w").click(function() {
         clearChart();
         loadChart("week");
+        currentPeriod = 'week';
     });
 
-    $("#m").click(function () {
+    $("#m").click(function() {
         clearChart();
         loadChart("month");
+        currentPeriod = 'month';
     });
 
-    $("#m3").click(function () {
+    $("#m3").click(function() {
         clearChart();
         loadChart("month3");
+        currentPeriod = 'month3';
     });
 
-    $("#y").click(function () {
+    $("#y").click(function() {
         clearChart();
         loadChart("year");
+        currentPeriod = 'year';
     });
 
-    $("#all").click(function () {
+    $("#all").click(function() {
         clearChart();
         loadChart("all");
+        currentPeriod = 'all';
     });
 
-    $("#ytd").click(function () {
+    $("#ytd").click(function() {
         clearChart();
         loadChart("ytd");
+        currentPeriod = 'ytd';
     });
 
-    $("#svg").click(function () {
+    $("#svg").click(function() {
         saveSVG();
     });
 
-    $("#png").click(function () {
+    $("#png").click(function() {
         savePNG();
     });
 
@@ -96,13 +108,13 @@
         }
     });
 
-     function savePNG() {
-        var url_base64 = document.getElementById("lineChart").toDataURL("image/png");
-         download(url_base64, "chart.png", "image/png");
+    function savePNG() {
+        var url_base64 = document.getElementById("line-chart").toDataURL("image/png");
+        download(url_base64, "chart.png", "image/png");
     }
 
     function saveSVG() {
-        //var context = document.getElementById("lineChart").getContext("2d");
+        //var context = document.getElementById("line-chart").getContext("2d");
         //// canvas2svg 'mock' context
         //var svgContext = C2S(500, 500);
 
@@ -110,13 +122,135 @@
         //var mySvg = new Chart(svgContext, chartConfig);
     }
 
-    
 
     function clearChart() {
         Chart.helpers.each(Chart.instances,
             function(instance) {
                 instance.chart.destroy();
             });
+    }
+
+    function updateChart() {        
+        $.getJSON('/Portfolio/GetChartData?period=' + currentPeriod,
+            function(data) {
+                var btcLabels = [];
+                var btcPoints = [];
+
+                var navLabels = [];
+                var navPoints = [];
+
+                data.btc.forEach(function(elem) {
+                    btcLabels.push(moment(elem.date).toDate());
+                    btcPoints.push(elem.value);
+                });
+
+                data.nav.forEach(function(elem) {
+                    navLabels.push(moment(elem.date).toDate());
+                    navPoints.push(elem.value);
+                });
+
+                if (!arraysEqual(btcPoints, currentBtcData)) {
+                    clearChart();
+                    currentBtcData = btcPoints;
+                    var color = Chart.helpers.color;
+                    var config = {
+                        type: 'line',
+                        data: {
+                            labels: btcLabels,
+                            datasets: [
+                                {
+                                    label: 'BTC Rate',
+                                    yAxisID: 'btc-axis',
+                                    backgroundColor: color("red").alpha(0.5).rgbString(),
+                                    borderColor: "red",
+                                    fill: false,
+                                    data: btcPoints,
+                                    hitRadius: 10,
+                                    radius: 0,
+                                    tension: 0.1
+                                },
+                                {
+                                    label: 'NAV Change',
+                                    yAxisID: 'nav-axis',
+                                    backgroundColor: color("blue").alpha(0.1).rgbString(),
+                                    borderColor: "blue",
+                                    fill: true,
+                                    data: navPoints,
+                                    hitRadius: 10,
+                                    radius: 0,
+                                    spanGaps: false,
+                                    tension: 0.1
+
+                                }
+                            ]
+                        },
+                        options: {
+                            title: {
+                                text: 'Chart.js Time Scale'
+                            },
+                            scales: {
+                                xAxes: [
+                                    {
+                                        type: 'time',
+                                        time: {
+                                            parser: timeFormat,
+                                            // round: 'day'
+                                            tooltipFormat: 'll HH:mm'
+                                        },
+                                        scaleLabel: {
+                                            display: true,
+                                            // labelString: 'Date'
+                                        }
+                                    }
+                                ],
+                                yAxes: [
+                                    {
+                                        id: 'btc-axis',
+                                        scaleLabel: {
+                                            display: true,
+                                        }
+                                    },
+                                    {
+                                        id: 'nav-axis',
+                                        position: 'right',
+                                        scaleLabel: {
+                                            display: true,
+                                            // labelString: 'value'
+                                        }
+                                    }
+                                ]
+                            },
+
+                            legend: {
+                                onClick: function(event, legendItem) {
+                                    //get the index of the clicked legend
+                                    var index = legendItem.datasetIndex;
+                                    //toggle chosen dataset's visibility
+                                    myChart.data.datasets[index].hidden =
+                                        !myChart.data.datasets[index].hidden;
+                                    //toggle the related labels' visibility
+                                    myChart.options.scales.yAxes[index].display =
+                                        !myChart.options.scales.yAxes[index].display;
+                                    myChart.update();
+                                }
+                            }
+                        }
+                    };
+                    var ctx = document.getElementById('line-chart').getContext('2d');
+                    chartConfig = config;
+                    var myChart = new Chart(ctx, config);
+                }
+            });
+    }
+
+    function arraysEqual(arr1, arr2) {
+        if (arr1.length !== arr2.length)
+            return false;
+        for (var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+                return false;
+        }
+        return true;
     }
 
     var chartConfig;
@@ -131,14 +265,16 @@
                 var navPoints = [];
 
                 data.btc.forEach(function(elem) {
-                    btcLabels.push(moment(elem.date));
+                    btcLabels.push(moment(elem.date).toDate());
                     btcPoints.push(elem.value);
                 });
 
                 data.nav.forEach(function(elem) {
-                    navLabels.push(moment(elem.date));
+                    navLabels.push(moment(elem.date).toDate());
                     navPoints.push(elem.value);
                 });
+
+                currentBtcData = btcPoints;
 
                 var color = Chart.helpers.color;
                 var config = {
@@ -169,7 +305,7 @@
                                 spanGaps: false,
                                 tension: 0.1
 
-            }
+                            }
                         ]
                     },
                     options: {
@@ -181,7 +317,7 @@
                                 {
                                     type: 'time',
                                     time: {
-                                        format: timeFormat,
+                                        parser: timeFormat,
                                         // round: 'day'
                                         tooltipFormat: 'll HH:mm'
                                     },
@@ -208,13 +344,29 @@
                                 }
                             ]
                         },
+
+                        legend: {
+                            onClick: function(event, legendItem) {
+                                //get the index of the clicked legend
+                                var index = legendItem.datasetIndex;
+                                //toggle chosen dataset's visibility
+                                myChart.data.datasets[index].hidden =
+                                    !myChart.data.datasets[index].hidden;
+                                //toggle the related labels' visibility
+                                myChart.options.scales.yAxes[index].display =
+                                    !myChart.options.scales.yAxes[index].display;
+                                myChart.update();
+                            }
+                        }
                     }
                 };
-                var ctx = document.getElementById('lineChart').getContext('2d');
+                var ctx = document.getElementById('line-chart').getContext('2d');
                 chartConfig = config;
                 var myChart = new Chart(ctx, config);
             });
     }
+
+    setInterval(updateChart, 15000);
 
    
 </script>
