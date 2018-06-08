@@ -84,8 +84,8 @@
                     </div>
                     <div id="activate" class="row" style="display: none">
                         <div class="col-md-9" style="float: none; margin: 0 auto;">
-                            <form asp-route-returnUrl="Panel" asp-action="ActivateInvestor" onsubmit="return validateActivation()" method="post">
-                                <div asp-validation-summary="All" class="text-danger"></div>
+                            @*<form asp-route-returnUrl="Panel" asp-action="ActivateInvestor" onsubmit="return validateActivation()" method="post">*@
+                                @*<div asp-validation-summary="All" class="text-danger"></div>*@
                                 <input asp-for="Id" class="form-control" type="hidden" />
                                 <div class="form-group input-group date" id="datetimepicker3">
                                     <input id="Date" name="Date" type="text" class="form-control" placeholder="Date (DD/MM/YYYY)" />
@@ -103,9 +103,9 @@
                                     <span id="activateSharesSpan" class="text-danger"></span>
                                 </div>
                                 <div style="text-align: center">
-                                    <button type="submit" class="btn btn-default" style="color: lightgray; border-radius: 15px; width: 250px;">Activate</button>
+                                    <button type="submit" class="btn btn-default" style="color: lightgray; border-radius: 15px; width: 250px;" onclick="validateActivation()">Activate</button>
                                 </div>
-                            </form>
+                            @*</form>*@
                         </div>
                     </div>
                 </div>
@@ -204,6 +204,7 @@
         $("#activateDateSpan").text("");
         $("#activateAmountSpan").text("");
         $("#activateSharesSpan").text("");
+        var id = $("#Id").val();
         var date = $("#Date").val();
         var amount = $("#AmountInvested").val();
         var shares = $("#SharesReceived").val();        
@@ -221,6 +222,33 @@
         }
         if (errors > 0)
             return false;
+
+        axios({
+                method: 'post',
+                url: '/Panel/Activate',
+                data: {
+                    Id: id,
+                    Date: date,
+                    AmountInvested: amount
+                }
+            })
+            .then(function(response) {
+                var data = response.data;
+                if (data.statusCode === 200) {
+                    console.log(data.errorMessage);
+                    switch (data.errorCode) {
+                    case 5:
+                        $("#activateSharesSpan").text("Not enough USD to return.");
+                        break;
+                    default:
+                        setTimeout(function() { window.location.href = "/Panel/Index" }, 500);
+                        break;
+                    }
+                }
+            })
+            .catch(function(error) {
+
+            });
     }
 
 </script>

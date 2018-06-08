@@ -30,16 +30,19 @@
     <div class="col-md-3" style="margin-top: 10px; margin-left: 5px;">
                    
     </div>
-    <div class="col-md-3">
-        <div class="row" style="">
-            <h1>$<span style="font-weight: bold">@((Model.NetAssetValue > 0 ? Model.NetAssetValue : 0).ToString("n2", new CultureInfo("en-US")))</span></h1>
+    @if (!double.IsNaN(Model.NetAssetValue) && !double.IsInfinity(Model.NetAssetValue))
+    {
+        <div class="col-md-3">
+            <div class="row" style="">
+                <h1>$<span style="font-weight: bold">@((Model.NetAssetValue > 0 ? Model.NetAssetValue : 0).ToString("n2", new CultureInfo("en-US")))</span></h1>
+            </div>
+            <div class="row" style="margin-top: -15px; width: -moz-max-content;">
+                <h5>Current Net Asset Value</h5>
+            </div>
         </div>
-        <div class="row" style="margin-top: -15px; width: -moz-max-content;">
-            <h5>Current Net Asset Value</h5>
-        </div>
-    </div>
+    }
 </div>
-@if (!double.IsNaN(Model.NetAssetValue))
+@if (!double.IsNaN(Model.NetAssetValue) && !double.IsInfinity(Model.NetAssetValue))
 {
     <div class="row">
         @if (Model.Nav1W != 0)

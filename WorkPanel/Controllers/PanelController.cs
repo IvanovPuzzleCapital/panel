@@ -172,15 +172,14 @@ namespace WorkPanel.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ActivateInvestor(InvestorViewModel model)
+        public ActionResult Activate([FromBody]InvestorViewModel model)
         {
             var investor = dbContext.Investors.FirstOrDefault(p => p.Id == model.Id);
             if (investor != null)
             {
                 investor.Status = Status.Active;
                 investor.Date = DateTime.ParseExact(model.Date, "d/M/yyyy", CultureInfo.InvariantCulture);
-                investor.DeactivateDate = DateTime.ParseExact(model.DeactivateDate, "d/M/yyyy", CultureInfo.InvariantCulture); ;
+                //investor.DeactivateDate = DateTime.ParseExact(model.DeactivateDate, "d/M/yyyy", CultureInfo.InvariantCulture); ;
                 investor.SharesBurned = 0;
                 investor.AmountReturned = 0;
                 investor.AmountInvested = model.AmountInvested;
@@ -199,7 +198,7 @@ namespace WorkPanel.Controllers
 
                 dbContext.SaveChanges();
             }
-            return RedirectToAction("Index");
+            return this.Json(new MetaResponse<object> { StatusCode = 200 });
         }
 
         public IActionResult RemoveInvestor(int id)
