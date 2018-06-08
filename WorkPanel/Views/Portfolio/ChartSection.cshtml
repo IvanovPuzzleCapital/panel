@@ -114,12 +114,7 @@
     }
 
     function saveSVG() {
-        //var context = document.getElementById("line-chart").getContext("2d");
-        //// canvas2svg 'mock' context
-        //var svgContext = C2S(500, 500);
 
-        //// new chart on 'mock' context fails:
-        //var mySvg = new Chart(svgContext, chartConfig);
     }
 
 
@@ -138,6 +133,11 @@
 
                 var navLabels = [];
                 var navPoints = [];
+
+                var btcMax = getMaxOfArray(btcPoints);
+                btcMax += 100;
+                var navMax = getMaxOfArray(navPoints);
+                navMax += 100;
 
                 data.btc.forEach(function(elem) {
                     btcLabels.push(moment(elem.date).toDate());
@@ -166,6 +166,7 @@
                                     fill: false,
                                     data: btcPoints,
                                     hitRadius: 10,
+                                    borderWidth: 1,
                                     radius: 0,
                                     tension: 0.1
                                 },
@@ -177,6 +178,7 @@
                                     fill: true,
                                     data: navPoints,
                                     hitRadius: 10,
+                                    borderWidth: 1,
                                     radius: 0,
                                     spanGaps: false,
                                     tension: 0.1
@@ -206,21 +208,19 @@
                                 yAxes: [
                                     {
                                         id: 'btc-axis',
-                                        scaleLabel: {
-                                            display: true,
+                                        ticks: {
+                                            max: btcMax
                                         }
                                     },
                                     {
                                         id: 'nav-axis',
                                         position: 'right',
-                                        scaleLabel: {
-                                            display: true,
-                                            // labelString: 'value'
+                                        ticks: {
+                                            max: navMax
                                         }
                                     }
                                 ]
                             },
-
                             legend: {
                                 onClick: function(event, legendItem) {
                                     //get the index of the clicked legend
@@ -253,6 +253,10 @@
         return true;
     }
 
+    function getMaxOfArray(numArray) {
+        return Math.max.apply(null, numArray);
+    }
+
     var chartConfig;
 
     function loadChart(period) {
@@ -262,7 +266,7 @@
                 var btcPoints = [];
 
                 var navLabels = [];
-                var navPoints = [];
+                var navPoints = [];                
 
                 data.btc.forEach(function(elem) {
                     btcLabels.push(moment(elem.date).toDate());
@@ -273,6 +277,12 @@
                     navLabels.push(moment(elem.date).toDate());
                     navPoints.push(elem.value);
                 });
+
+                var btcMax = getMaxOfArray(btcPoints);
+                btcMax += 100;
+                var navMax = getMaxOfArray(navPoints);
+                navMax += 100;
+
 
                 currentBtcData = btcPoints;
 
@@ -332,16 +342,15 @@
                             yAxes: [
                                 {
                                     id: 'btc-axis',
-                                    scaleLabel: {
-                                        display: true,
+                                    ticks: {                                        
+                                        max: btcMax
                                     }
                                 },
                                 {
                                     id: 'nav-axis',
                                     position: 'right',
-                                    scaleLabel: {
-                                        display: true,
-                                        // labelString: 'value'
+                                    ticks: {                                       
+                                        max: navMax
                                     }
                                 }
                             ]
