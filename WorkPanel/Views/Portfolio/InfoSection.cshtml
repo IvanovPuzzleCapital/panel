@@ -9,11 +9,11 @@
                 @{
                     var per = (Model.Assets.Sum(a => a.Price * a.Quantity) - Model.TotalInvested) / Model.TotalInvested;
                 }
-                @if (per >= 0)
+                @if (per >= 0 && !double.IsInfinity(per))
                 {
                     <h3 style="padding-top: 10px;"><span style="font-weight: bold; color: #2BBF5C">+@(per.ToString("p", new CultureInfo("en-US")))</span></h3>
                 }
-                else if (double.IsNaN(per))
+                else if (double.IsNaN(per) || double.IsInfinity(per))
                 {
 
                 }
